@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  password    String
+  name        String
+  nationality String?
+  role        Role      @default(USER)
+  bookings    Booking[]
+  reviews     Review[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Tour {
+  id           Int         @id @default(autoincrement())
+  title        String
+  description  String
+  destination  String
+  price        Decimal     @db.Decimal(10, 2)
+  durationDays Int
+  itinerary    String
+  included     String
+  images       TourImage[]
+  bookings     Booking[]
+  reviews      Review[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model TourImage {
+  id        Int      @id @default(autoincrement())
+  url       String
+  tourId    Int
+  tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Booking {
+  id             Int           @id @default(autoincrement())
+  userId         Int
+  tourId         Int
+  contactEmail   String
+  passportNumber String
+  status         BookingStatus @default(PENDING)
+  user           User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  tour           Tour          @relation(fields: [tourId], references: [id], onDelete: Restrict)
+  payment        Payment?
+  review         Review?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Payment {
+  id        Int           @id @default(autoincrement())
+  bookingId Int           @unique
+  amount    Decimal       @db.Decimal(10, 2)
+  status    PaymentStatus @default(PENDING)
+  method    String?
+  booking   Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  tourId    Int
+  bookingId Int      @unique
+  rating    Int
+  comment   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Restrict)
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
