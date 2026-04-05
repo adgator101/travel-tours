@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Account – Travel</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+
+  <div class="card">
+
+    <div class="logo-wrap">
+      <div class="logo-glow"></div>
+      <img src="assets/logo.png" alt="Travel Logo" class="logo-img"/>
+    </div>
+
+    <h1>Create Account</h1>
+    <p class="subtitle">Sign up to start your travel journey</p>
+
+    <div class="field">
+      <label for="fullname">Full Name</label>
+      <input type="text" id="fullname" placeholder="Enter your name" autocomplete="name"/>
+    </div>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="Enter your email" autocomplete="email"/>
+    </div>
+
+    <div class="field">
+      <label for="phone">Phone Number</label>
+      <div class="phone-row">
+        <select id="dialcode" class="dial-select">
+          <option value="+1">🇺🇸 +1</option>
+          <option value="+44">🇬🇧 +44</option>
+          <option value="+91">🇮🇳 +91</option>
+          <option value="+977" selected>🇳🇵 +977</option>
+          <option value="+61">🇦🇺 +61</option>
+          <option value="+81">🇯🇵 +81</option>
+          <option value="+49">🇩🇪 +49</option>
+          <option value="+33">🇫🇷 +33</option>
+          <option value="+86">🇨🇳 +86</option>
+          <option value="+971">🇦🇪 +971</option>
+        </select>
+        <input type="tel" id="phone" placeholder="Enter your number" autocomplete="tel"/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Create a password" autocomplete="new-password"/>
+    </div>
+
+    <div class="field">
+      <label for="confirm">Confirm Password</label>
+      <input type="password" id="confirm" placeholder="Confirm your password" autocomplete="new-password"/>
+    </div>
+
+    <button class="btn-signup" id="signupBtn">Sign Up</button>
+
+    <p class="footer-links">
+      Already have an account? <a href="login.html">Login</a>
+    </p>
+    <a class="return-home" href="#">← Return to Home</a>
+
+  </div>
+
+  <script src="services/signup.js"></script>
+</body>
+</html>
