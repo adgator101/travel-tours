@@ -1,11 +1,42 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hello World</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel & Tourism - Explore the World</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Hello World</h1>
+    <header>
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-globe"></i>
+            </div>
+            <div class="logo-text">
+                <h1>Travel & Tourism</h1>
+                <p>Explore the World</p>
+            </div>
+        </div>
+        <div class="auth-buttons">
+            <button class="btn" onclick="handleLogin()">Login</button>
+            <button class="btn btn-primary" onclick="handleSignup()">Sign Up</button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h2>Discover Your Next Adventure</h2>
+        <p>Choose from our carefully curated travel packages and create unforgettable memories around the world</p>
+    </section>
+
+    <section class="tours-container">
+        <div class="tours-grid" id="toursGrid"></div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Travel & Tourism. Your adventure starts here.</p>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
