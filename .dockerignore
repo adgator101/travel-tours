@@ -1,0 +1,9 @@
+**/node_modules
+**/.DS_Store
+**/.git
+**/.github
+**/*.log
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
