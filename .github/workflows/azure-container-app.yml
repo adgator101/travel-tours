@@ -1,0 +1,92 @@
+name: Build and deploy to Azure Container Apps
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: travel-tours
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Resolve registry and app settings
+        id: vars
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            set -e
+            az containerapp identity assign \
+              --name "${{ secrets.AZURE_CONTAINER_APP_NAME }}" \
+              --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+              --system-assigned
+
+            LOGIN_SERVER=$(az acr show --name "${{ secrets.AZURE_ACR_NAME }}" --query loginServer -o tsv)
+            APP_PRINCIPAL_ID=$(az containerapp show \
+              --name "${{ secrets.AZURE_CONTAINER_APP_NAME }}" \
+              --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+              --query identity.principalId -o tsv)
+            ACR_ID=$(az acr show --name "${{ secrets.AZURE_ACR_NAME }}" --query id -o tsv)
+
+            echo "login_server=$LOGIN_SERVER" >> "$GITHUB_OUTPUT"
+            echo "app_principal_id=$APP_PRINCIPAL_ID" >> "$GITHUB_OUTPUT"
+            echo "acr_id=$ACR_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to Azure Container Registry
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az acr login --name "${{ secrets.AZURE_ACR_NAME }}"
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ steps.vars.outputs.login_server }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ steps.vars.outputs.login_server }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Grant container app pull access
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            set -e
+            az role assignment create \
+              --assignee "${{ steps.vars.outputs.app_principal_id }}" \
+              --role AcrPull \
+              --scope "${{ steps.vars.outputs.acr_id }}" \
+              --assignee-principal-type ServicePrincipal || true
+
+            az containerapp registry set \
+              --name "${{ secrets.AZURE_CONTAINER_APP_NAME }}" \
+              --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+              --server "${{ steps.vars.outputs.login_server }}" \
+              --identity system
+
+      - name: Deploy image to Container App
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az containerapp update \
+              --name "${{ secrets.AZURE_CONTAINER_APP_NAME }}" \
+              --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+              --image "${{ steps.vars.outputs.login_server }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
