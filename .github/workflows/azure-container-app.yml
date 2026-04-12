@@ -63,21 +63,24 @@ jobs:
             ${{ steps.vars.outputs.login_server }}/${{ env.IMAGE_NAME }}:latest
 
       - name: Grant container app pull access
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            set -e
+        run: |
+          set -e
+          # Check if the role assignment already exists
+          if ! az role assignment list --assignee "${{ steps.vars.outputs.app_principal_id }}" --scope "${{ steps.vars.outputs.acr_id }}" --role AcrPull --query "[?principalId=='${{ steps.vars.outputs.app_principal_id }}']" | grep -q 'AcrPull'; then
             az role assignment create \
               --assignee "${{ steps.vars.outputs.app_principal_id }}" \
               --role AcrPull \
               --scope "${{ steps.vars.outputs.acr_id }}" \
-              --assignee-principal-type ServicePrincipal || true
+              --assignee-principal-type ServicePrincipal --only-show-errors
+          else
+            echo "AcrPull role already assigned, skipping."
+          fi
 
-            az containerapp registry set \
-              --name "${{ secrets.AZURE_CONTAINER_APP_NAME }}" \
-              --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
-              --server "${{ steps.vars.outputs.login_server }}" \
-              --identity system
+          az containerapp registry set \
+            --name "${{ secrets.AZURE_CONTAINER_APP_NAME }}" \
+            --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+            --server "${{ steps.vars.outputs.login_server }}" \
+            --identity system
 
       - name: Deploy image to Container App
         uses: azure/cli@v2
