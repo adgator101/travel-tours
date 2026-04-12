@@ -50,10 +50,7 @@ jobs:
             echo "acr_id=$ACR_ID" >> "$GITHUB_OUTPUT"
 
       - name: Log in to Azure Container Registry
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            az acr login --name "${{ secrets.AZURE_ACR_NAME }}"
+        run: az acr login --name "${{ secrets.AZURE_ACR_NAME }}"
 
       - name: Build and push image
         uses: docker/build-push-action@v6
