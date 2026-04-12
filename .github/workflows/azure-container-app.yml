@@ -33,21 +33,8 @@ jobs:
         with:
           inlineScript: |
             set -e
-            az containerapp identity assign \
-              --name "${{ secrets.AZURE_CONTAINER_APP_NAME }}" \
-              --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
-              --system-assigned
-
             LOGIN_SERVER=$(az acr show --name "${{ secrets.AZURE_ACR_NAME }}" --query loginServer -o tsv)
-            APP_PRINCIPAL_ID=$(az containerapp show \
-              --name "${{ secrets.AZURE_CONTAINER_APP_NAME }}" \
-              --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
-              --query identity.principalId -o tsv)
-            ACR_ID=$(az acr show --name "${{ secrets.AZURE_ACR_NAME }}" --query id -o tsv)
-
             echo "login_server=$LOGIN_SERVER" >> "$GITHUB_OUTPUT"
-            echo "app_principal_id=$APP_PRINCIPAL_ID" >> "$GITHUB_OUTPUT"
-            echo "acr_id=$ACR_ID" >> "$GITHUB_OUTPUT"
 
       - name: Log in to Azure Container Registry
         run: az acr login --name "${{ secrets.AZURE_ACR_NAME }}"
@@ -64,18 +51,6 @@ jobs:
 
       - name: Grant container app pull access
         run: |
-          set -e
-          # Check if the role assignment already exists
-          if ! az role assignment list --assignee "${{ steps.vars.outputs.app_principal_id }}" --scope "${{ steps.vars.outputs.acr_id }}" --role AcrPull --query "[?principalId=='${{ steps.vars.outputs.app_principal_id }}']" | grep -q 'AcrPull'; then
-            az role assignment create \
-              --assignee "${{ steps.vars.outputs.app_principal_id }}" \
-              --role AcrPull \
-              --scope "${{ steps.vars.outputs.acr_id }}" \
-              --assignee-principal-type ServicePrincipal --only-show-errors
-          else
-            echo "AcrPull role already assigned, skipping."
-          fi
-
           az containerapp registry set \
             --name "${{ secrets.AZURE_CONTAINER_APP_NAME }}" \
             --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
