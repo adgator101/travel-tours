@@ -10,6 +10,22 @@ body {
     color: #333;
 }
 
+a,
+ a:link,
+ a:visited,
+ a:hover,
+ a:active,
+ a:focus {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+a:hover,
+ a:focus {
+    color: #5cb85c !important;
+    text-decoration: underline !important;
+}
+
 header {
     background-color: #fff;
     border-bottom: 2px solid #5cb85c;
@@ -48,9 +64,35 @@ header {
     color: #888;
 }
 
-.auth-buttons {
+.auth-buttons,
+    .auth-links {
     display: flex;
     gap: 10px;
+}
+
+.auth-link {
+    padding: 8px 18px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.auth-link:hover {
+    background-color: #f0f0f0;
+}
+
+.auth-link-primary {
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+}
+
+.auth-link-primary:hover {
+    background-color: #4cae4c;
 }
 
 .btn {

@@ -1,72 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Create Account – Travel</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="assets/style.css"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - Travel & Tourism</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/tour.css" />
 </head>
 <body>
+    <header>
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-globe"></i>
+            </div>
+            <div class="logo-text">
+                <h1>Travel & Tourism</h1>
+                <p>Create your new account</p>
+            </div>
+        </div>
+        <div class="auth-links">
+            <a class="auth-link" href="index.html">Home</a>
+            <a class="auth-link auth-link-primary" href="login.html">Login</a>
+        </div>
+    </header>
 
-  <div class="card">
+    <section class="hero">
+        <h2>Sign Up</h2>
+        <p>Create an account to save your favorite trips and book faster.</p>
+    </section>
 
-    <div class="logo-wrap">
-      <div class="logo-glow"></div>
-      <img src="assets/logo.png" alt="Travel Logo" class="logo-img"/>
-    </div>
+    <section class="tours-container">
+        <div class="tours-grid">
+            <div class="tour-card">
+                <div class="card-content">
+                    <h3>Sign up is not implemented yet</h3>
+                    <p>Please return to the home page or login if you already have an account.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <h1>Create Account</h1>
-    <p class="subtitle">Sign up to start your travel journey</p>
-
-    <div class="field">
-      <label for="fullname">Full Name</label>
-      <input type="text" id="fullname" placeholder="Enter your name" autocomplete="name"/>
-    </div>
-
-    <div class="field">
-      <label for="email">Email</label>
-      <input type="email" id="email" placeholder="Enter your email" autocomplete="email"/>
-    </div>
-
-    <div class="field">
-      <label for="phone">Phone Number</label>
-      <div class="phone-row">
-        <select id="dialcode" class="dial-select">
-          <option value="+1">🇺🇸 +1</option>
-          <option value="+44">🇬🇧 +44</option>
-          <option value="+91">🇮🇳 +91</option>
-          <option value="+977" selected>🇳🇵 +977</option>
-          <option value="+61">🇦🇺 +61</option>
-          <option value="+81">🇯🇵 +81</option>
-          <option value="+49">🇩🇪 +49</option>
-          <option value="+33">🇫🇷 +33</option>
-          <option value="+86">🇨🇳 +86</option>
-          <option value="+971">🇦🇪 +971</option>
-        </select>
-        <input type="tel" id="phone" placeholder="Enter your number" autocomplete="tel"/>
-      </div>
-    </div>
-
-    <div class="field">
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="Create a password" autocomplete="new-password"/>
-    </div>
-
-    <div class="field">
-      <label for="confirm">Confirm Password</label>
-      <input type="password" id="confirm" placeholder="Confirm your password" autocomplete="new-password"/>
-    </div>
-
-    <button class="btn-signup" id="signupBtn">Sign Up</button>
-
-    <p class="footer-links">
-      Already have an account? <a href="login.html">Login</a>
-    </p>
-    <a class="return-home" href="#">← Return to Home</a>
-
-  </div>
-
-  <script src="services/signup.js"></script>
+    <footer>
+        <p>&copy; 2025 Travel & Tourism</p>
+    </footer>
 </body>
 </html>

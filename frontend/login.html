@@ -1,47 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login – Travel</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="assets/style.css"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Travel & Tourism</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/tour.css" />
 </head>
 <body>
+    <header>
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-globe"></i>
+            </div>
+            <div class="logo-text">
+                <h1>Travel & Tourism</h1>
+                <p>Login to continue</p>
+            </div>
+        </div>
+        <div class="auth-links">
+            <a class="auth-link" href="index.html">Home</a>
+            <a class="auth-link auth-link-primary" href="signup.html">Sign Up</a>
+        </div>
+    </header>
 
-  <div class="card">
+    <section class="hero">
+        <h2>Login</h2>
+        <p>Access your travel dashboard and manage bookings.</p>
+    </section>
 
-    <div class="logo-wrap">
-      <div class="logo-glow"></div>
-      <img src="assets/logo.png" alt="Travel Logo" class="logo-img"/>
-    </div>
+    <section class="tours-container">
+        <div class="tours-grid">
+            <div class="tour-card">
+                <div class="card-content">
+                    <h3>Login is not implemented yet</h3>
+                    <p>Please return to the home page or sign up for a new account.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <h1>Welcome Back</h1>
-    <p class="subtitle">Login to continue your travel journey</p>
-
-    <div class="field">
-      <label for="email">Email</label>
-      <input type="email" id="email" placeholder="Enter your email" autocomplete="email"/>
-    </div>
-
-    <div class="field">
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password"/>
-    </div>
-
-    <div class="forgot-row">
-      <a href="#" class="forgot-link">Forgot password?</a>
-    </div>
-
-    <button class="btn-signup" id="loginBtn">Login</button>
-
-    <p class="footer-links">
-      Don't have an account? <a href="signup.html">Sign Up</a>
-    </p>
-    <a class="return-home" href="#">← Return to Home</a>
-
-  </div>
-
-  <script src="services/login.js"></script>
+    <footer>
+        <p>&copy; 2025 Travel & Tourism</p>
+    </footer>
 </body>
 </html>

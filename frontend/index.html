@@ -1,26 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Travel – Welcome</title>
-  <link rel="stylesheet" href="assets/style.css"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel & Tourism - Explore the World</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/tour.css">
 </head>
 <body>
+    <header>
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-globe"></i>
+            </div>
+            <div class="logo-text">
+                <h1>Travel & Tourism</h1>
+                <p>Explore the World</p>
+            </div>
+        </div>
+        <div class="auth-buttons">
+            <a class="btn" href="login.html">Login</a>
+            <a class="btn btn-primary" href="signup.html">Sign Up</a>
+        </div>
+    </header>
 
-  <div class="card">
-    <div class="logo-wrap">
-      <div class="logo-glow"></div>
-      <img src="assets/logo.png" alt="Travel Logo" class="logo-img"/>
-    </div>
+    <section class="hero">
+        <h2>Discover Your Next Adventure</h2>
+        <p>Choose from our carefully curated travel packages and create unforgettable memories around the world</p>
+    </section>
 
-    <h1>Welcome to Travel</h1>
-    <p class="subtitle">Start your journey with us</p>
+    <section class="tours-container">
+        <div class="tours-grid" id="toursGrid"></div>
+    </section>
 
-    <p class="footer-links">
-      <a href="signup.html">Create Account</a> | <a href="login.html">Login</a>
-    </p>
-  </div>
+    <footer>
+        <p>&copy; 2025 Travel & Tourism. Your adventure starts here.</p>
+    </footer>
 
+    <script src="services/tour.js"></script>
 </body>
 </html>
