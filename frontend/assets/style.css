@@ -1,3 +1,24 @@
+/* General link styles */
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover, a:focus {
+  color: var(--green-primary, #4CAF50);
+  text-decoration: underline;
+}
+
+/* Subtle link style for secondary actions */
+.link {
+  color: #7a8f7a;
+  font-size: 15px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.link:hover {
+  color: var(--green-primary, #4CAF50);
+}
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
