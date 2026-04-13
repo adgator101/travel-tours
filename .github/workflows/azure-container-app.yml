@@ -49,13 +49,6 @@ jobs:
             ${{ steps.vars.outputs.login_server }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
             ${{ steps.vars.outputs.login_server }}/${{ env.IMAGE_NAME }}:latest
 
-      - name: Grant container app pull access
-        run: |
-          az containerapp registry set \
-            --name "${{ secrets.AZURE_CONTAINER_APP_NAME }}" \
-            --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
-            --server "${{ steps.vars.outputs.login_server }}" \
-            --identity system
 
       - name: Deploy image to Container App
         uses: azure/cli@v2
