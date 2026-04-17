@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mountain Adventure Trek - Travel Tours</title>
+    <link rel="stylesheet" href="assets/tour-details.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="index.html" class="back-link">
+                <span class="arrow">&larr;</span>
+                <span class="back-icon">B</span>
+                <span>Back to Packages</span>
+            </a>
+        </div>
+        <div class="nav-right">
+            <a href="login.html" class="login-btn">Login</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?w=1200&h=400&fit=crop" alt="Mountain hiking trail" class="hero-image">
+        <div class="hero-overlay">
+            <span class="badge">5 Days / 4 Nights</span>
+            <h1>Mountain Adventure Trek</h1>
+            <div class="hero-meta">
+                <span class="location">Swiss Alps</span>
+                <span class="rating">4.9 (89 reviews)</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="content-grid">
+            <div class="left-column">
+                <section class="card about-section">
+                    <h2>About This Package</h2>
+                    <p>Embark on an unforgettable hiking adventure through the breathtaking Swiss Alps. Perfect for adventure enthusiasts.</p>
+                </section>
+
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('itinerary')">Itinerary</button>
+                    <button class="tab-btn" onclick="switchTab('gallery')">Gallery</button>
+                    <button class="tab-btn" onclick="switchTab('reviews')">Reviews</button>
+                </div>
+
+                <div id="itinerary" class="tab-content active">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-number">1</div>
+                            <div class="timeline-content">
+                                <h3>Arrival in Interlaken</h3>
+                                <p>Meet the group and guide. Equipment check. Orientation and safety briefing. Stay in mountain lodge.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">2</div>
+                            <div class="timeline-content">
+                                <h3>Valley Trail Hike</h3>
+                                <p>Morning trek through alpine meadows. Picnic lunch with mountain views. Visit local cheese farm.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">3</div>
+                            <div class="timeline-content">
+                                <h3>Summit Challenge</h3>
+                                <p>Early morning start for summit attempt. Packed breakfast. Reach viewpoint for panoramic views.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">4</div>
+                            <div class="timeline-content">
+                                <h3>Mountain Lakes</h3>
+                                <p>Hike to crystal clear mountain lakes. Photography session. Evening campfire and storytelling.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-number">5</div>
+                            <div class="timeline-content">
+                                <h3>Return & Departure</h3>
+                                <p>Final descent. Group breakfast. Certificate ceremony. Transfer to airport.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="gallery" class="tab-content">
+                    <div class="gallery-grid">
+                        <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&h=300&fit=crop" alt="Mountain view">
+                        <img src="https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=400&h=300&fit=crop" alt="Alpine lake">
+                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop" alt="Swiss Alps">
+                        <img src="https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=400&h=300&fit=crop" alt="Hiking trail">
+                    </div>
+                </div>
+
+                <div id="reviews" class="tab-content">
+                    <div class="reviews-list">
+                        <div class="review-item">
+                            <div class="review-header">
+                                <strong>Sarah M.</strong>
+                                <span class="stars">*****</span>
+                            </div>
+                            <p>Amazing experience! The guides were professional and the views were breathtaking.</p>
+                        </div>
+                        <div class="review-item">
+                            <div class="review-header">
+                                <strong>John D.</strong>
+                                <span class="stars">*****</span>
+                            </div>
+                            <p>Well organized trip. Loved the mountain lodge accommodation!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="inclusions-grid">
+                    <div class="card inclusions">
+                        <h3>What's Included</h3>
+                        <ul>
+                            <li>Professional mountain guide</li>
+                            <li>4 nights mountain lodge accommodation</li>
+                            <li>All meals during trek</li>
+                            <li>Trekking equipment</li>
+                            <li>Group transfer</li>
+                            <li>Completion certificate</li>
+                        </ul>
+                    </div>
+                    <div class="card exclusions">
+                        <h3>What's Not Included</h3>
+                        <ul>
+                            <li>International flights</li>
+                            <li>Travel insurance</li>
+                            <li>Personal hiking gear</li>
+                            <li>Tips for guides</li>
+                            <li>Additional snacks</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="sidebar">
+                <div class="card price-card">
+                    <div class="price">$899</div>
+                    <div class="price-label">per person</div>
+                    
+                    <div class="info-list">
+                        <div class="info-item">
+                            <span class="icon">D</span>
+                            <div>
+                                <div class="info-label">Duration</div>
+                                <div class="info-value">5 Days / 4 Nights</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="icon">L</span>
+                            <div>
+                                <div class="info-label">Location</div>
+                                <div class="info-value">Swiss Alps</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="icon">R</span>
+                            <div>
+                                <div class="info-label">Rating</div>
+                                <div class="info-value">4.9 / 5.0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="book-btn">Book Now</button>
+                    <button class="contact-btn">Contact Us</button>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script src="services/tour-details.js"></script>
+</body>
+</html>
