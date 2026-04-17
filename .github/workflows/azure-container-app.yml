@@ -49,6 +49,17 @@ jobs:
             ${{ steps.vars.outputs.login_server }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
             ${{ steps.vars.outputs.login_server }}/${{ env.IMAGE_NAME }}:latest
 
+      - name: Apply Prisma migrations using built image
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          IMAGE_TAG: ${{ steps.vars.outputs.login_server }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        run: |
+          docker pull "$IMAGE_TAG"
+          docker run --rm \
+            -e DATABASE_URL="$DATABASE_URL" \
+            "$IMAGE_TAG" \
+            pnpm prisma:migrate:deploy
+
 
       - name: Deploy image to Container App
         uses: azure/cli@v2
