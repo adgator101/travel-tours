@@ -14,6 +14,9 @@ const buildConnectionConfig = () => {
       throw new Error("DATABASE_URL must include a database name");
     }
 
+    const sslParam = parsedUrl.searchParams.get("ssl") || parsedUrl.searchParams.get("sslmode");
+    const useSsl = sslParam === "true" ? { rejectUnauthorized: false } : undefined;
+
     return {
       host: parsedUrl.hostname,
       port: Number(parsedUrl.port || 3306),
@@ -21,6 +24,8 @@ const buildConnectionConfig = () => {
       password: decodeURIComponent(parsedUrl.password || ""),
       database: decodeURIComponent(databaseName),
       connectionLimit: Number(process.env.DATABASE_CONNECTION_LIMIT || 5),
+      connectTimeout: 20000,
+      ssl: useSsl,
     };
   }
 
@@ -31,6 +36,8 @@ const buildConnectionConfig = () => {
     password: process.env.DATABASE_PASSWORD || "password",
     database: process.env.DATABASE_NAME || "travel_tours",
     connectionLimit: Number(process.env.DATABASE_CONNECTION_LIMIT || 5),
+    connectTimeout: 20000,
+    ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : undefined,
   };
 };
 
