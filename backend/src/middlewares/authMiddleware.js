@@ -2,6 +2,7 @@ import { createHttpError, sendError } from "../utils/httpResponse.js";
 
 const toAuthenticatedUser = (user) => ({
   id: user.id,
+  publicId: user.publicId || null,
   name: user.name,
   email: user.email,
   nationality: user.nationality,

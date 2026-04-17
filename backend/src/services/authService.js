@@ -1,3 +1,5 @@
+import { v7 as uuidv7 } from "uuid";
+
 const success = (data = {}) => ({ ok: true, data });
 
 const failure = (code, message) => ({
@@ -7,6 +9,7 @@ const failure = (code, message) => ({
 
 const toPublicUser = (user) => ({
   id: user.id,
+  publicId: user.publicId || null,
   name: user.name,
   email: user.email,
   nationality: user.nationality,
@@ -27,6 +30,7 @@ export const createAuthService = ({ prisma, authUtils }) => ({
     const passwordHash = authUtils.hashPassword(password);
     const user = await prisma.user.create({
       data: {
+        publicId: uuidv7(),
         name,
         email: normalizedEmail,
         password: passwordHash,
