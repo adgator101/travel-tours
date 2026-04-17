@@ -2,12 +2,31 @@ import { z } from "zod";
 
 import { createHttpError } from "../utils/httpResponse.js";
 
+const toLabel = (pathSegment = "value") =>
+  String(pathSegment)
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/^./, (char) => char.toUpperCase());
+
+const formatIssueMessage = (issue, fallbackMessage) => {
+  if (!issue) {
+    return fallbackMessage;
+  }
+
+  const field = toLabel(issue.path?.[0] || "value");
+
+  if (issue.code === "invalid_type" && issue.input === undefined) {
+    return `${field} is required`;
+  }
+
+  return issue.message || `${field} is invalid`;
+};
+
 const withHttpError = (schema, body, fallbackMessage) => {
   const result = schema.safeParse(body);
 
   if (!result.success) {
     const firstIssue = result.error.issues[0];
-    throw createHttpError(400, firstIssue?.message || fallbackMessage);
+    throw createHttpError(400, formatIssueMessage(firstIssue, fallbackMessage));
   }
 
   return result.data;
