@@ -1,54 +1,41 @@
+import { z } from "zod";
+
 import { createHttpError } from "../utils/httpResponse.js";
 
-const normalizeText = (value) =>
-  typeof value === "string" ? value.trim() : "";
+const withHttpError = (schema, body, fallbackMessage) => {
+  const result = schema.safeParse(body);
 
-export const validateRegisterInput = (body = {}) => {
-  const name = normalizeText(body.name);
-  const email = normalizeText(body.email).toLowerCase();
-  const password = typeof body.password === "string" ? body.password : "";
-
-  if (!name || !email || !password) {
-    throw createHttpError(400, "Name, email and password are required");
+  if (!result.success) {
+    const firstIssue = result.error.issues[0];
+    throw createHttpError(400, firstIssue?.message || fallbackMessage);
   }
 
-  if (name.length < 2) {
-    throw createHttpError(400, "Name must be at least 2 characters long");
-  }
-
-  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!isValidEmail) {
-    throw createHttpError(400, "Please provide a valid email address");
-  }
-
-  if (password.length < 6) {
-    throw createHttpError(400, "Password must be at least 6 characters long");
-  }
-
-  return { name, email, password };
+  return result.data;
 };
 
-export const validateLoginInput = (body = {}) => {
-  const email = normalizeText(body.email).toLowerCase();
-  const password = typeof body.password === "string" ? body.password : "";
+const registerSchema = z.object({
+  name: z.string().trim().min(2, "Name must be at least 2 characters long"),
+  email: z.string().trim().email("Please provide a valid email address").transform((value) => value.toLowerCase()),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+  nationality: z.string().trim().min(1).optional(),
+});
 
-  if (!email || !password) {
-    throw createHttpError(400, "Email and password are required");
-  }
+const loginSchema = z.object({
+  email: z.string().trim().email("Please provide a valid email address").transform((value) => value.toLowerCase()),
+  password: z.string().min(1, "Password is required"),
+});
 
-  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!isValidEmail) {
-    throw createHttpError(400, "Please provide a valid email address");
-  }
+const authHeaderSchema = z
+  .string()
+  .trim()
+  .regex(/^Bearer\s+\S+$/, "Missing or invalid authorization token")
+  .transform((value) => value.split(/\s+/)[1]);
 
-  return { email, password };
-};
+export const validateRegisterInput = (body = {}) =>
+  withHttpError(registerSchema, body, "Invalid register input");
 
-export const validateAuthToken = (authorizationHeader = "") => {
-  const [scheme, token] = authorizationHeader.split(" ");
-  if (scheme !== "Bearer" || !token) {
-    throw createHttpError(401, "Missing or invalid authorization token");
-  }
+export const validateLoginInput = (body = {}) =>
+  withHttpError(loginSchema, body, "Invalid login input");
 
-  return token;
-};
+export const validateAuthToken = (authorizationHeader = "") =>
+  withHttpError(authHeaderSchema, authorizationHeader, "Missing or invalid authorization token");
