@@ -1,5 +1,3 @@
-const API_BASE = "";
-
 // Map dial codes to nationality/country names for the API's "nationality" field
 const dialCodeToNationality = {
   '+1':   'United States',
@@ -58,7 +56,7 @@ async function handleSignup() {
   btn.textContent = 'Creating account…';
 
   try {
-    const res = await fetch(`${API_BASE}/api/auth/register`, {
+    const res = await fetch(window.getApiUrl('/api/auth/register'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password: pass, nationality }),

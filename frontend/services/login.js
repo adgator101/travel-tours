@@ -1,5 +1,3 @@
-const API_BASE = "";
-
 document.getElementById('loginBtn').addEventListener('click', handleLogin);
 
 async function handleLogin() {
@@ -21,7 +19,7 @@ async function handleLogin() {
   btn.textContent = 'Logging in…';
 
   try {
-    const res = await fetch(`${API_BASE}/api/auth/login`, {
+    const res = await fetch(window.getApiUrl('/api/auth/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password: pass }),
