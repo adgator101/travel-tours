@@ -10,13 +10,11 @@ const tourService = createTourService({ prisma });
 const tourController = createTourController({ tourService });
 const { requireAuth, requireRole } = createAuthMiddleware({ prisma, authUtils });
 
-router.use(requireAuth);
-
 router.get("/", tourController.listTours);
 router.get("/:id", tourController.getTourById);
 
-router.post("/", requireRole(["ADMIN"]), tourController.createTour);
-router.put("/:id", requireRole(["ADMIN"]), tourController.updateTour);
-router.delete("/:id", requireRole(["ADMIN"]), tourController.deleteTour);
+router.post("/", requireAuth, requireRole(["ADMIN"]), tourController.createTour);
+router.put("/:id", requireAuth, requireRole(["ADMIN"]), tourController.updateTour);
+router.delete("/:id", requireAuth, requireRole(["ADMIN"]), tourController.deleteTour);
 
 export default router;
