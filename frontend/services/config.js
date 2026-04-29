@@ -1,8 +1,7 @@
 (() => {
   // Single source of truth for frontend API base URL.
   // Set to a full URL only if frontend and API are hosted on different origins.
-  // const API_BASE_URL = "https://travel-tours-app.happygrass-dcd4e26f.centralindia.azurecontainerapps.io";
-  const API_BASE_URL = "http://localhost:5000";
+  const API_BASE_URL = "";
   const apiBase = API_BASE_URL.trim().replace(/\/+$/, "");
 
   window.APP_CONFIG = {
