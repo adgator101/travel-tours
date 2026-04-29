@@ -1,27 +1,15 @@
-import crypto from "crypto";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const SCRYPT_KEYLEN = 64;
+const BCRYPT_ROUNDS = 10;
 const DEFAULT_EXPIRES_IN = "1d";
 
-export const hashPassword = (password) => {
-  const salt = crypto.randomBytes(16).toString("hex");
-  const hash = crypto.scryptSync(password, salt, SCRYPT_KEYLEN).toString("hex");
-  return `${salt}:${hash}`;
+export const hashPassword = async (password) => {
+  return await bcrypt.hash(password, BCRYPT_ROUNDS);
 };
 
-export const verifyPassword = (password, storedHash) => {
-  const [salt, passwordHash] = storedHash.split(":");
-  if (!salt || !passwordHash) {
-    return false;
-  }
-
-  const incomingHash = crypto.scryptSync(password, salt, SCRYPT_KEYLEN).toString("hex");
-
-  return crypto.timingSafeEqual(
-    Buffer.from(incomingHash, "hex"),
-    Buffer.from(passwordHash, "hex")
-  );
+export const verifyPassword = async (password, storedHash) => {
+  return await bcrypt.compare(password, storedHash);
 };
 
 export const signToken = (payload) => {

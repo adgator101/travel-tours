@@ -27,7 +27,7 @@ export const createAuthService = ({ prisma, authUtils }) => ({
       return failure("USER_EXISTS", "User already exists");
     }
 
-    const passwordHash = authUtils.hashPassword(password);
+    const passwordHash = await authUtils.hashPassword(password);
     const user = await prisma.user.create({
       data: {
         publicId: uuidv7(),
@@ -52,7 +52,7 @@ export const createAuthService = ({ prisma, authUtils }) => ({
       return failure("INVALID_CREDENTIALS", "Invalid credentials");
     }
 
-    const isPasswordValid = authUtils.verifyPassword(password, user.password);
+    const isPasswordValid = await authUtils.verifyPassword(password, user.password);
 
     if (!isPasswordValid) {
       return failure("INVALID_CREDENTIALS", "Invalid credentials");
