@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Portal – Travel & Tourism</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/admin.css" />
+  </head>
+  <body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="admin-avatar">A</div>
+        <div class="admin-info">
+          <div class="admin-name">Admin Portal</div>
+          <div class="admin-subtitle">Travel & Tourism Management</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-page="dashboard"
+          ><i class="fas fa-th-large"></i> Dashboard</a
+        >
+        <a href="#" class="nav-item" data-page="packages"
+          ><i class="fas fa-box-open"></i> Packages</a
+        >
+        <a href="#" class="nav-item" data-page="bookings"
+          ><i class="fas fa-calendar-check"></i> Bookings</a
+        >
+        <a href="#" class="nav-item" data-page="users"
+          ><i class="fas fa-users"></i> Users</a
+        >
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-wrap">
+      <header class="topbar">
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+        <div class="topbar-actions">
+          <a href="index.html" class="btn-outline">View Site</a>
+          <button class="btn-logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+      </header>
+
+      <main class="content">
+        <!-- DASHBOARD PAGE -->
+        <section id="page-dashboard" class="page active">
+          <h2 class="page-title">Dashboard</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-value">24</div>
+                <div class="stat-label">Total Packages</div>
+              </div>
+              <div class="stat-icon green"><i class="fas fa-box-open"></i></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-value">156</div>
+                <div class="stat-label">Total Bookings</div>
+              </div>
+              <div class="stat-icon blue">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-value">1,234</div>
+                <div class="stat-label">Registered Users</div>
+              </div>
+              <div class="stat-icon orange"><i class="fas fa-users"></i></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-value">$45,678</div>
+                <div class="stat-label">Revenue</div>
+              </div>
+              <div class="stat-icon purple">
+                <i class="fas fa-dollar-sign"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-card-header">
+              <h3>Recent Bookings</h3>
+              <a href="#" class="link-green" data-page="bookings">View All</a>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking ID</th>
+                  <th>Customer</th>
+                  <th>Package</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-green">#BK001</td>
+                  <td class="cell-green">John Doe</td>
+                  <td class="cell-green">Mountain Adventure Trek</td>
+                  <td>2024-01-15</td>
+                  <td><span class="badge badge-confirmed">Confirmed</span></td>
+                  <td>$899</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">#BK002</td>
+                  <td class="cell-green">Jane Smith</td>
+                  <td class="cell-green">Tropical Paradise Getaway</td>
+                  <td>2024-01-14</td>
+                  <td><span class="badge badge-pending">Pending</span></td>
+                  <td>$1,299</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">#BK003</td>
+                  <td class="cell-green">Mike Johnson</td>
+                  <td class="cell-green">European Heritage Tour</td>
+                  <td>2024-01-13</td>
+                  <td><span class="badge badge-confirmed">Confirmed</span></td>
+                  <td>$1,599</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section-card">
+            <div class="section-card-header">
+              <h3>Popular Packages</h3>
+              <a href="#" class="link-green" data-page="packages">Manage</a>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Package</th>
+                  <th>Location</th>
+                  <th>Price</th>
+                  <th>Bookings</th>
+                  <th>Rating</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-green">Tropical Paradise Getaway</td>
+                  <td>Maldives</td>
+                  <td>$1299</td>
+                  <td>20</td>
+                  <td>4.8</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">Mountain Adventure Trek</td>
+                  <td>Swiss Alps</td>
+                  <td>$899</td>
+                  <td>50</td>
+                  <td>4.9</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">European Heritage Tour</td>
+                  <td>Paris, France</td>
+                  <td>$1599</td>
+                  <td>21</td>
+                  <td>4.7</td>
+                </tr>
+                <tr>
+                  <td class="cell-green">Safari Wildlife Experience</td>
+                  <td>Serengeti, Tanzania</td>
+                  <td>$2199</td>
+                  <td>13</td>
+                  <td>4.9</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- PACKAGES PAGE -->
+        <section id="page-packages" class="page">
+          <div class="page-header-row">
+            <h2 class="page-title">Manage Packages</h2>
+            <button class="btn-primary" id="newPackageBtn">
+              <i class="fas fa-plus"></i> New Package
+            </button>
+          </div>
+          <div class="section-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Package</th>
+                  <th>Destination</th>
+                  <th>Price</th>
+                  <th>Duration</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-green">Tropical Paradise Getaway</td>
+                  <td>Maldives</td>
+                  <td>$1,299</td>
+                  <td>7 days</td>
+                  <td>
+                    <div class="actions-cell">
+                      <button class="btn-icon" onclick="openEditModal()">
+                        <i class="fas fa-pen"></i></button
+                      ><button class="btn-icon danger">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="cell-green">Mountain Adventure Trek</td>
+                  <td>Swiss Alps</td>
+                  <td>$899</td>
+                  <td>10 days</td>
+                  <td>
+                    <div class="actions-cell">
+                      <button class="btn-icon" onclick="openEditModal()">
+                        <i class="fas fa-pen"></i></button
+                      ><button class="btn-icon danger">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="cell-green">European Heritage Tour</td>
+                  <td>Paris, France</td>
+                  <td>$1,599</td>
+                  <td>8 days</td>
+                  <td>
+                    <div class="actions-cell">
+                      <button class="btn-icon" onclick="openEditModal()">
+                        <i class="fas fa-pen"></i></button
+                      ><button class="btn-icon danger">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="cell-green">Safari Wildlife Experience</td>
+                  <td>Serengeti, Tanzania</td>
+                  <td>$2,199</td>
+                  <td>12 days</td>
+                  <td>
+                    <div class="actions-cell">
+                      <button class="btn-icon" onclick="openEditModal()">
+                        <i class="fas fa-pen"></i></button
+                      ><button class="btn-icon danger">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- BOOKINGS PAGE -->
+        <section id="page-bookings" class="page">
+          <h2 class="page-title">Manage Bookings</h2>
+          <div class="filter-row">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Search bookings…" />
+            </div>
+            <select class="filter-select">
+              <option>All Status</option>
+              <option>Confirmed</option>
+              <option>Pending</option>
+              <option>Cancelled</option>
+            </select>
+          </div>
+          <div class="section-card">
+            <h3 style="margin-bottom: 16px">All Bookings</h3>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking ID</th>
+                  <th>Customer</th>
+                  <th>Package</th>
+                  <th>Travel Date</th>
+                  <th>Persons</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cell-green">#BK001</td>
+                  <td>
+                    <div class="customer-cell">
+                      <div class="customer-avatar">JD</div>
+                      <div>
+                        <div class="customer-name">John Doe</div>
+                        <div class="customer-email">john@email.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="cell-green">Mountain Adventure Trek</td>
+                  <td>2024-02-15</td>
+                  <td>2</td>
+                  <td>$2,798</td>
+                  <td><span class="badge badge-confirmed">Confirmed</span></td>
+                  <td>
+                    <div class="actions-cell">
+                      <button class="btn-icon">
+                        <i class="fas fa-eye"></i></button
+                      ><button class="btn-icon">
+                        <i class="fas fa-pen"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="cell-green">#BK002</td>
+                  <td>
+                    <div class="customer-cell">
+                      <div class="customer-avatar">JS</div>
+                      <div>
+                        <div class="customer-name">Jane Smith</div>
+                        <div class="customer-email">jane@email.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="cell-green">Tropical Paradise Getaway</td>
+                  <td>2024-02-20</td>
+                  <td>4</td>
+                  <td>$5,196</td>
+                  <td><span class="badge badge-pending">Pending</span></td>
+                  <td>
+                    <div class="actions-cell">
+                      <button class="btn-icon">
+                        <i class="fas fa-eye"></i></button
+                      ><button class="btn-icon">
+                        <i class="fas fa-pen"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="cell-green">#BK003</td>
+                  <td>
+                    <div class="customer-cell">
+                      <div class="customer-avatar">MJ</div>
+                      <div>
+                        <div class="customer-name">Mike Johnson</div>
+                        <div class="customer-email">mike@email.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="cell-green">European Heritage Tour</td>
+                  <td>2024-03-01</td>
+                  <td>2</td>
+                  <td>$3,198</td>
+                  <td><span class="badge badge-confirmed">Confirmed</span></td>
+                  <td>
+                    <div class="actions-cell">
+                      <button class="btn-icon">
+                        <i class="fas fa-eye"></i></button
+                      ><button class="btn-icon">
+                        <i class="fas fa-pen"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="cell-green">#BK004</td>
+                  <td>
+                    <div class="customer-cell">
+                      <div class="customer-avatar">SL</div>
+                      <div>
+                        <div class="customer-name">Sarah Lee</div>
+                        <div class="customer-email">sarah@email.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="cell-green">Safari Wildlife Experience</td>
+                  <td>2024-03-10</td>
+                  <td>2</td>
+                  <td>$4,398</td>
+                  <td><span class="badge badge-cancelled">Cancelled</span></td>
+                  <td>
+                    <div class="actions-cell">
+                      <button class="btn-icon">
+                        <i class="fas fa-eye"></i></button
+                      ><button class="btn-icon">
+                        <i class="fas fa-pen"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="pagination">
+              <button disabled>← Previous</button>
+              <span class="page-info">Page 1 of 2</span>
+              <button>Next →</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- USERS PAGE -->
+        <section id="page-users" class="page">
+          <h2 class="page-title">Users</h2>
+          <div class="section-card">
+            <p class="empty-state">User management coming soon.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- CREATE / EDIT PACKAGE MODAL -->
+    <div id="packageModal" class="modal-overlay hidden">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 id="modalTitle">Create New Package</h3>
+          <p id="modalSubtitle" class="modal-subtitle">
+            Add a new travel package to your catalog
+          </p>
+          <button class="modal-close" id="modalClose">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-section">
+            <div class="modal-section-header">
+              <span class="modal-section-num green">1</span>
+              <div>
+                <strong>Basic Information</strong>
+                <p>Enter the basic details about this package</p>
+              </div>
+            </div>
+            <div class="form-grid-2">
+              <div class="field">
+                <label>Package Title</label
+                ><input
+                  type="text"
+                  placeholder="e.g., Tropical Paradise Getaway"
+                />
+              </div>
+              <div class="field">
+                <label>Location</label
+                ><input type="text" placeholder="e.g., Maldives" />
+              </div>
+            </div>
+            <div class="form-grid-2">
+              <div class="field">
+                <label>Duration (days)</label
+                ><input type="number" placeholder="e.g., 7" min="1" />
+              </div>
+              <div class="field">
+                <label>Price (USD)</label
+                ><input type="number" placeholder="e.g., 1299" min="0" />
+              </div>
+            </div>
+            <div class="field">
+              <label>Description</label
+              ><textarea
+                rows="3"
+                placeholder="Describe the package experience in detail…"
+              ></textarea>
+            </div>
+            <div class="field">
+              <label>Main Image URL</label>
+              <input type="url" placeholder="https://example.com/image.jpg" />
+              <small>Upload or paste the URL of the main package image</small>
+            </div>
+          </div>
+
+          <div class="modal-section">
+            <div class="modal-section-header">
+              <span class="modal-section-num green">2</span>
+              <div>
+                <strong>Day-by-Day Itinerary</strong>
+                <p>Plan each day of this journey</p>
+              </div>
+            </div>
+            <div id="itineraryDays"></div>
+            <button class="btn-add-day" id="addDayBtn">
+              <i class="fas fa-plus"></i> Add Another Day
+            </button>
+          </div>
+
+          <div class="modal-section">
+            <div class="modal-section-header">
+              <span class="modal-section-num green">3</span>
+              <div>
+                <strong>Inclusions & Exclusions</strong>
+                <p>Services and what they include or don't</p>
+              </div>
+            </div>
+            <div class="incl-excl-grid">
+              <div>
+                <div class="incl-header">
+                  <i class="fas fa-check-circle green-text"></i> What's Included
+                </div>
+                <div id="includedList" class="item-list"></div>
+                <button class="btn-add-item" id="addIncludedBtn">
+                  <i class="fas fa-plus"></i> Add More Items
+                </button>
+              </div>
+              <div>
+                <div class="incl-header">
+                  <i class="fas fa-times-circle red-text"></i> What's Excluded
+                </div>
+                <div id="excludedList" class="item-list"></div>
+                <button class="btn-add-item" id="addExcludedBtn">
+                  <i class="fas fa-plus"></i> Add More Items
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-outline" id="cancelModalBtn">Cancel</button>
+          <button class="btn-primary" id="savePackageBtn">Save Package</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="services/admin.js"></script>
+  </body>
+</html>
