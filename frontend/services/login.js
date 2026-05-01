@@ -28,7 +28,6 @@ async function handleLogin() {
     const data = await res.json();
 
     if (!res.ok) {
-      // API returns { success: false, message: "..." }
       showError(data.message || 'Login failed. Please try again.');
       return;
     }
@@ -37,8 +36,12 @@ async function handleLogin() {
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
 
-    // Redirect to the main page after successful login
-    window.location.href = 'index.html';
+    // Redirect based on role
+    if (data.user && data.user.role === 'ADMIN') {
+      window.location.href = 'admin.html';
+    } else {
+      window.location.href = 'index.html';
+    }
 
   } catch (err) {
     showError('Network error. Please check your connection and try again.');
@@ -50,7 +53,6 @@ async function handleLogin() {
 }
 
 function showError(message) {
-  // Try to find an existing error element, otherwise use alert as fallback
   let errorEl = document.getElementById('error-msg');
   if (errorEl) {
     errorEl.textContent = message;
