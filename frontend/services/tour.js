@@ -189,39 +189,9 @@ function renderTours(tours) {
     });
 }
 
-// ─── VIEW TOUR DETAILS (GET /api/tours/:id) ───────────────────────────────────
-async function viewDetails(tourId) {
-    showDetailsModal(null, true);
-
-    try {
-        const response = await fetch(API_BASE(`/api/tours/${tourId}`), {
-            method: 'GET',
-            headers: getAuthHeaders()
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            if (response.status === 401) {
-                closeModal();
-                showError('Please log in to view tour details.', true);
-                return;
-            }
-            throw new Error(data.message || 'Tour not found');
-        }
-
-        if (data.success && data.tour) {
-            showDetailsModal(data.tour, false);
-        } else {
-            closeModal();
-            alert('Tour details not available.');
-        }
-
-    } catch (err) {
-        console.error('Error fetching tour details:', err);
-        closeModal();
-        alert('Could not load tour details. Please try again.');
-    }
+// ─── VIEW TOUR DETAILS (Navigate to tour-details.html) ───────────────────────
+function viewDetails(tourId) {
+    window.location.href = `tour-details.html?id=${tourId}`;
 }
 
 // ─── DETAILS MODAL ────────────────────────────────────────────────────────────
