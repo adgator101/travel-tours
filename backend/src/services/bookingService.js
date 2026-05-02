@@ -30,7 +30,7 @@ export const createBookingService = ({ prisma }) => ({
     const bookings = await prisma.booking.findMany({
       where: { userId },
       include: {
-        tour: { select: { id: true, title: true, price: true, thumbnail: true } },
+        tour: { select: { id: true, title: true, price: true } },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -41,7 +41,7 @@ export const createBookingService = ({ prisma }) => ({
   async listAllBookings() {
     const bookings = await prisma.booking.findMany({
       include: {
-        tour: { select: { id: true, title: true, price: true, thumbnail: true } },
+        tour: { select: { id: true, title: true, price: true } },
         user: { select: { id: true, name: true, email: true } },
       },
       orderBy: { createdAt: "desc" },
@@ -54,7 +54,7 @@ export const createBookingService = ({ prisma }) => ({
     const booking = await prisma.booking.findUnique({
       where: { id },
       include: {
-        tour: { select: { id: true, title: true, price: true, thumbnail: true } },
+        tour: { select: { id: true, title: true, price: true } },
         user: { select: { id: true, name: true, email: true } },
       },
     });
@@ -71,7 +71,7 @@ export const createBookingService = ({ prisma }) => ({
   },
 
   async createBooking({ userId, input }) {
-    const { tourId, contactEmail } = input;
+    const { tourId, contactEmail, passportNumber } = input;
 
     const tour = await prisma.tour.findUnique({ where: { id: tourId } });
     if (!tour) {
@@ -83,6 +83,7 @@ export const createBookingService = ({ prisma }) => ({
         userId,
         tourId,
         contactEmail,
+        passportNumber,
         status: "PENDING",
       },
       include: {
