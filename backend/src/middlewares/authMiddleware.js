@@ -5,6 +5,7 @@ const toAuthenticatedUser = (user) => ({
   publicId: user.publicId || null,
   name: user.name,
   email: user.email,
+  phone: user.phone || null,
   nationality: user.nationality,
   role: user.role,
 });
