@@ -19,6 +19,7 @@ async function handleSignup() {
   const email    = document.getElementById('email').value.trim();
   const phone    = document.getElementById('phone').value.trim();
   const dialCode = document.getElementById('dialcode').value;
+  const nationalitySel = document.getElementById('nationality')?.value || '';
   const pass     = document.getElementById('password').value;
   const confirm  = document.getElementById('confirm').value;
 
@@ -48,8 +49,8 @@ async function handleSignup() {
     return;
   }
 
-  // Derive nationality from the selected dial code
-  const nationality = dialCodeToNationality[dialCode] || 'Nepal';
+  // Derive nationality from the selected dial code or use explicit selection
+  const nationality = nationalitySel || dialCodeToNationality[dialCode] || 'Nepal';
 
   const btn = document.getElementById('signupBtn');
   btn.disabled = true;
@@ -59,7 +60,7 @@ async function handleSignup() {
     const res = await fetch(window.getApiUrl('/api/auth/register'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password: pass, nationality }),
+      body: JSON.stringify({ name, email, password: pass, nationality, phone }),
     });
 
     const data = await res.json();
