@@ -27,6 +27,7 @@ model User {
   id          Int       @id @default(autoincrement())
   publicId    String?   @unique @db.Char(36)
   email       String    @unique
+  phone       String?
   password    String
   name        String
   nationality String?
