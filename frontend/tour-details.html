@@ -175,6 +175,50 @@
         </div>
     </main>
 
+    <!-- BOOKING MODAL -->
+    <div id="bookingModal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeBookingModal()">&times;</button>
+            <div class="modal-header">
+                <div class="modal-icon">🏔️</div>
+                <h2 class="modal-title">Book This Tour</h2>
+                <p class="modal-subtitle" id="modalTourName">Complete your booking below</p>
+            </div>
+
+            <div id="bookingFormBody">
+                <div id="bookingError" class="booking-error" style="display:none;"></div>
+                <form id="bookingForm" onsubmit="submitBooking(event)">
+                    <div class="form-group">
+                        <label for="bookingEmail">Contact Email</label>
+                        <input type="email" id="bookingEmail" placeholder="your@email.com" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="bookingPassport">Passport Number</label>
+                        <input type="text" id="bookingPassport" placeholder="e.g. ABC123456" required />
+                    </div>
+                    <div class="booking-price-row">
+                        <span>Total Price</span>
+                        <strong id="modalPrice">—</strong>
+                    </div>
+                    <button type="submit" id="bookingSubmitBtn" class="btn-confirm">Confirm Booking</button>
+                    <button type="button" class="btn-cancel" onclick="closeBookingModal()">Cancel</button>
+                </form>
+            </div>
+
+            <div id="bookingSuccess" class="booking-success" style="display:none;">
+                <div class="success-icon">✅</div>
+                <h3>Booking Confirmed!</h3>
+                <p>Your booking for <strong id="successTourName"></strong> is submitted.</p>
+                <div class="success-details">
+                    <div class="success-row"><span>Booking ID</span><strong id="successBookingId"></strong></div>
+                    <div class="success-row"><span>Email</span><strong id="successEmail"></strong></div>
+                    <div class="success-row"><span>Status</span><strong id="successStatus"></strong></div>
+                </div>
+                <button class="btn-confirm" onclick="closeBookingModal()">Done</button>
+            </div>
+        </div>
+    </div>
+
     <script src="services/config.js"></script>
     <script src="services/tour-details.js"></script>
 </body>
