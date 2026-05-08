@@ -12,12 +12,13 @@ const toPublicUser = (user) => ({
   publicId: user.publicId || null,
   name: user.name,
   email: user.email,
+  phone: user.phone || null,
   nationality: user.nationality,
   role: user.role,
 });
 
 export const createAuthService = ({ prisma, authUtils }) => ({
-  async register({ name, email, password, nationality }) {
+  async register({ name, email, password, nationality, phone }) {
     const normalizedEmail = email.toLowerCase();
     const existingUser = await prisma.user.findUnique({
       where: { email: normalizedEmail },
@@ -35,6 +36,7 @@ export const createAuthService = ({ prisma, authUtils }) => ({
         email: normalizedEmail,
         password: passwordHash,
         nationality,
+        phone,
       },
     });
 

@@ -37,6 +37,7 @@ const registerSchema = z.object({
   email: z.string().trim().email("Please provide a valid email address").transform((value) => value.toLowerCase()),
   password: z.string().min(6, "Password must be at least 6 characters long"),
   nationality: z.string().trim().min(1).optional(),
+  phone: z.string().trim().min(6).optional(),
 });
 
 const loginSchema = z.object({

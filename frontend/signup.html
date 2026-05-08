@@ -18,6 +18,8 @@
 
     <h1>Create Account</h1>
     <p class="subtitle">Sign up to start your travel journey</p>
+    
+    <div id="error-msg" class="error-msg hidden"></div>
 
     <div class="field">
       <label for="fullname">Full Name</label>
@@ -46,6 +48,23 @@
         </select>
         <input type="tel" id="phone" placeholder="Enter your number" autocomplete="tel"/>
       </div>
+    </div>
+
+    <div class="field">
+      <label for="nationality">Nationality</label>
+      <select id="nationality">
+        <option value="">Select nationality</option>
+        <option value="United States">United States</option>
+        <option value="United Kingdom">United Kingdom</option>
+        <option value="India">India</option>
+        <option value="Nepal" selected>Nepal</option>
+        <option value="Australia">Australia</option>
+        <option value="Japan">Japan</option>
+        <option value="Germany">Germany</option>
+        <option value="France">France</option>
+        <option value="China">China</option>
+        <option value="United Arab Emirates">United Arab Emirates</option>
+      </select>
     </div>
 
     <div class="field">
