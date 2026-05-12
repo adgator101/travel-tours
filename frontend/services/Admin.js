@@ -1,121 +1,38 @@
-// ─────────────────────────────────────────────────────────────────────────────
-//  Travel & Tours — Admin Portal  (fully integrated with REST API)
-//  API Base is read from window.APP_CONFIG.API_BASE_URL (set by config.js)
-// ─────────────────────────────────────────────────────────────────────────────
+const API = 'https://travel-tours-app.happygrass-dcd4e26f.centralindia.azurecontainerapps.io';
 
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
+// ─── AUTH GUARD ───────────────────────────────────────────────────────────────
+(function () {
+  const token = localStorage.getItem("token");
+  const user  = JSON.parse(localStorage.getItem("user") || "null");
+  if (!token || !user) { window.location.href = "login.html"; return; }
+  if (user.role !== "ADMIN") { alert("Access denied. Admin only."); window.location.href = "index.html"; return; }
+  const initials = user.name ? user.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2) : "A";
+  document.getElementById("adminAvatar").textContent = initials;
+  document.getElementById("adminName").textContent   = user.name || "Admin Portal";
+})();
 
-/** Returns the stored JWT or null */
-function getToken() {
-  return localStorage.getItem("token");
-}
+function getToken() { return localStorage.getItem("token") || ""; }
 
-/** Authenticated fetch wrapper — throws on non-2xx */
-async function apiFetch(path, options = {}) {
-  const token = getToken();
-  const res = await fetch(window.getApiUrl(path), {
-    ...options,
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(window.getApiUrl ? window.getApiUrl(path) : API + path, {
+    ...opts,
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
+      Authorization: "Bearer " + getToken(),
+      ...(opts.headers || {}),
     },
   });
-
-  const data = await res.json().catch(() => ({}));
-
-  if (!res.ok) {
-    throw new Error(data.message || `Request failed (${res.status})`);
-  }
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Request failed");
   return data;
 }
 
-/** Show a small toast-style alert */
-function showToast(message, type = "success") {
-  const existing = document.getElementById("toast-msg");
-  if (existing) existing.remove();
-
-  const toast = document.createElement("div");
-  toast.id = "toast-msg";
-  toast.style.cssText = `
-    position:fixed;bottom:24px;right:24px;z-index:9999;
-    padding:12px 20px;border-radius:8px;font-size:0.9rem;
-    font-family:inherit;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.18);
-    background:${type === "success" ? "#22c55e" : "#ef4444"};color:#fff;
-    animation:fadeIn .25s ease;
-  `;
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3500);
-}
-
-/** Format currency */
-const fmt$ = (n) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
-
-/** Format date string */
-const fmtDate = (iso) =>
-  iso ? new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "—";
-
-/** Badge HTML for booking status */
-function statusBadge(status) {
-  const map = { CONFIRMED: "confirmed", PENDING: "pending", CANCELLED: "cancelled" };
-  const cls = map[status] || "pending";
-  return `<span class="badge badge-${cls}">${status}</span>`;
-}
-
-// ─── AUTH GUARD ───────────────────────────────────────────────────────────────
-async function initAuth() {
-  const token = getToken();
-  if (!token) {
-    window.location.href = "login.html";
-    return false;
-  }
-  try {
-    const data = await apiFetch("/api/auth/me");
-    const user = data.user;
-
-    if (user.role !== "ADMIN") {
-      alert("Access denied. Admin only area.");
-      localStorage.clear();
-      window.location.href = "login.html";
-      return false;
-    }
-
-    // Populate sidebar
-    const initial = user.name ? user.name[0].toUpperCase() : "A";
-    document.getElementById("adminAvatar").textContent = initial;
-    document.getElementById("adminName").textContent = user.name || "Admin";
-
-    // Store user globally
-    window.__adminUser = user;
-    return true;
-  } catch (err) {
-    localStorage.clear();
-    window.location.href = "login.html";
-    return false;
-  }
-}
-
-// ─── LOGOUT ──────────────────────────────────────────────────────────────────
-document.getElementById("logoutBtn")?.addEventListener("click", async () => {
-  try {
-    await apiFetch("/api/auth/logout", { method: "POST" });
-  } catch (_) {
-    // ignore errors during logout
-  } finally {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.location.href = "login.html";
-  }
-});
-
-// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
 const PAGE_TITLES = {
   dashboard: "Dashboard",
-  packages: "Manage Packages",
-  bookings: "Manage Bookings",
-  users: "Users",
+  packages:  "Manage Packages",
+  bookings:  "Manage Bookings",
+  users:     "Users",
 };
 
 function showPage(name) {
@@ -124,318 +41,377 @@ function showPage(name) {
   document.getElementById("page-" + name)?.classList.add("active");
   document.querySelector(`.nav-item[data-page="${name}"]`)?.classList.add("active");
   document.getElementById("topbarTitle").textContent = PAGE_TITLES[name] || name;
+  if (name === "dashboard") loadDashboard();
+  if (name === "packages")  loadPackages();
+  if (name === "bookings")  loadBookings();
 }
 
 document.addEventListener("click", (e) => {
   const el = e.target.closest("[data-page]");
-  if (el) {
-    e.preventDefault();
-    const page = el.dataset.page;
-    showPage(page);
-    if (page === "packages") loadPackages();
-    if (page === "bookings") loadBookings();
-    if (page === "dashboard") loadDashboard();
-  }
+  if (el) { e.preventDefault(); showPage(el.dataset.page); }
 });
 
-// ─── DASHBOARD ───────────────────────────────────────────────────────────────
-async function loadDashboard() {
-  try {
-    const [toursData, bookingsData] = await Promise.all([
-      apiFetch("/api/tours"),
-      apiFetch("/api/bookings/admin/all"),
-    ]);
+// ─── LOGOUT ───────────────────────────────────────────────────────────────────
+document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+  try { await apiFetch("/api/auth/logout", { method: "POST" }); } catch (_) {}
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  window.location.href = "login.html";
+});
 
-    const tours = toursData.tours || [];
-    const bookings = bookingsData.bookings || [];
-
-    // Stats
-    document.getElementById("statPackages").textContent = tours.length;
-    document.getElementById("statBookings").textContent = bookings.length;
-
-    // Revenue = sum of prices of CONFIRMED bookings
-    const revenue = bookings
-      .filter((b) => b.status === "CONFIRMED")
-      .reduce((sum, b) => sum + (b.tour?.price || 0), 0);
-    document.getElementById("statRevenue").textContent = fmt$(revenue);
-
-    // Users stat — we don't have a users endpoint, show unique users
-    const uniqueUsers = new Set(bookings.map((b) => b.user?.id)).size;
-    document.getElementById("statUsers").textContent = uniqueUsers || "—";
-
-    // Recent bookings table (last 5)
-    const recent = [...bookings].reverse().slice(0, 5);
-    const tbody = document.getElementById("recentBookingsBody");
-    if (tbody) {
-      tbody.innerHTML = recent.length
-        ? recent
-            .map(
-              (b) => `
-          <tr>
-            <td class="cell-green">#BK${String(b.id).padStart(3, "0")}</td>
-            <td class="cell-green">${b.user?.name || "—"}</td>
-            <td class="cell-green">${b.tour?.title || "—"}</td>
-            <td>${fmtDate(b.createdAt)}</td>
-            <td>${statusBadge(b.status)}</td>
-            <td>${fmt$(b.tour?.price || 0)}</td>
-          </tr>`
-            )
-            .join("")
-        : `<tr><td colspan="6" style="text-align:center;color:#888;padding:20px">No bookings yet.</td></tr>`;
-    }
-
-    // Popular packages — most booked tours
-    const tourBookingCount = {};
-    bookings.forEach((b) => {
-      if (b.tourId) tourBookingCount[b.tourId] = (tourBookingCount[b.tourId] || 0) + 1;
-    });
-    const popular = [...tours]
-      .sort((a, b) => (tourBookingCount[b.id] || 0) - (tourBookingCount[a.id] || 0))
-      .slice(0, 5);
-
-    const ppBody = document.getElementById("popularPackagesBody");
-    if (ppBody) {
-      ppBody.innerHTML = popular.length
-        ? popular
-            .map(
-              (t) => `
-          <tr>
-            <td class="cell-green">${t.title}</td>
-            <td>${t.destination}</td>
-            <td>${fmt$(t.price)}</td>
-            <td>${tourBookingCount[t.id] || 0}</td>
-            <td>—</td>
-          </tr>`
-            )
-            .join("")
-        : `<tr><td colspan="5" style="text-align:center;color:#888;padding:20px">No packages yet.</td></tr>`;
-    }
-  } catch (err) {
-    showToast("Failed to load dashboard: " + err.message, "error");
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function esc(str) {
+  return String(str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function capitalize(str) {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+}
+function showToast(msg, type = "success") {
+  let toast = document.getElementById("toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "toast";
+    toast.style.cssText = "position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:10px;font-size:0.9rem;font-weight:600;z-index:9999;transition:opacity 0.3s;";
+    document.body.appendChild(toast);
   }
+  toast.textContent = msg;
+  toast.style.background = type === "success" ? "#4CAF50" : "#e53935";
+  toast.style.color   = "#fff";
+  toast.style.display = "block";
+  toast.style.opacity = "1";
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.display = "none"; }, 3500);
 }
 
-// ─── PACKAGES ────────────────────────────────────────────────────────────────
-let allTours = [];
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  // Packages
+  try {
+    const { tours } = await apiFetch("/api/tours");
+    document.getElementById("statPackages").textContent = tours.length;
+    const pkgBody = document.getElementById("popularPackagesBody");
+    pkgBody.innerHTML = tours.length
+      ? tours.slice(0, 5).map((t) => `
+          <tr>
+            <td class="cell-green">${esc(t.title)}</td>
+            <td>${esc(t.destination)}</td>
+            <td>$${Number(t.price).toLocaleString()}</td>
+            <td>—</td><td>—</td>
+          </tr>`).join("")
+      : `<tr><td colspan="5" class="loading-cell">No packages yet</td></tr>`;
+  } catch (err) {
+    document.getElementById("statPackages").textContent = "—";
+    console.error("Tours error:", err);
+  }
+
+  // Bookings — GET /api/bookings/admin/all
+  try {
+    const { bookings } = await apiFetch("/api/bookings/admin/all");
+    document.getElementById("statBookings").textContent = bookings.length;
+
+    const revenue = bookings.reduce((sum, b) => sum + Number(b.tour?.price || 0), 0);
+    document.getElementById("statRevenue").textContent = "$" + revenue.toLocaleString();
+
+    const tbody  = document.getElementById("recentBookingsBody");
+    const recent = bookings.slice(0, 3);
+    tbody.innerHTML = recent.length
+      ? recent.map((b) => {
+          const statusClass = {
+            confirmed: "badge-confirmed", pending: "badge-pending", cancelled: "badge-cancelled"
+          }[(b.status || "").toLowerCase()] || "badge-pending";
+          return `<tr>
+            <td class="cell-green">#${esc(String(b.id))}</td>
+            <td class="cell-green">${esc(b.user?.name || "—")}</td>
+            <td class="cell-green">${esc(b.tour?.title || "—")}</td>
+            <td>${esc(b.createdAt?.slice(0, 10) || "—")}</td>
+            <td><span class="badge ${statusClass}">${capitalize(b.status)}</span></td>
+            <td>$${Number(b.tour?.price || 0).toLocaleString()}</td>
+          </tr>`;
+        }).join("")
+      : `<tr><td colspan="6" class="loading-cell">No bookings yet</td></tr>`;
+  } catch (err) {
+    document.getElementById("statBookings").textContent = "—";
+    document.getElementById("statRevenue").textContent  = "—";
+    document.getElementById("recentBookingsBody").innerHTML =
+      `<tr><td colspan="6" class="loading-cell">Could not load bookings</td></tr>`;
+  }
+
+  document.getElementById("statUsers").textContent = "—";
+}
+
+// ─── PACKAGES ─────────────────────────────────────────────────────────────────
+let allTours     = [];
+let editingTourId = null;
 
 async function loadPackages() {
   const tbody = document.getElementById("packagesTableBody");
-  if (!tbody) return;
-  tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:20px;color:#888"><i class="fas fa-spinner fa-spin"></i> Loading…</td></tr>`;
-
+  tbody.innerHTML = `<tr><td colspan="5" class="loading-cell"><i class="fas fa-spinner fa-spin"></i> Loading…</td></tr>`;
   try {
-    const data = await apiFetch("/api/tours");
-    allTours = data.tours || [];
-    renderPackagesTable(allTours);
+    const { tours } = await apiFetch("/api/tours");
+    allTours = tours;
+    renderPackagesTable(tours);
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#ef4444;padding:20px">Failed to load packages: ${err.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="loading-cell">Failed to load packages</td></tr>`;
+    showToast(err.message, "error");
   }
 }
 
 function renderPackagesTable(tours) {
   const tbody = document.getElementById("packagesTableBody");
-  if (!tbody) return;
-
-  tbody.innerHTML = tours.length
-    ? tours
-        .map(
-          (t) => `
-      <tr data-tour-id="${t.id}">
-        <td class="cell-green">${t.title}</td>
-        <td>${t.destination}</td>
-        <td>${fmt$(t.price)}</td>
-        <td>${t.durationDays} days</td>
-        <td>
-          <div class="actions-cell">
-            <button class="btn-icon" onclick="openEditModal(${t.id})" title="Edit"><i class="fas fa-pen"></i></button>
-            <button class="btn-icon danger" onclick="deleteTour(${t.id}, '${t.title.replace(/'/g, "\\'")}')" title="Delete"><i class="fas fa-trash"></i></button>
-          </div>
-        </td>
-      </tr>`
-        )
-        .join("")
-    : `<tr><td colspan="5" style="text-align:center;color:#888;padding:20px">No packages yet. Create one!</td></tr>`;
+  if (!tours.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No packages yet. Create one!</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = tours.map((t) => `
+    <tr>
+      <td class="cell-green">${esc(t.title)}</td>
+      <td>${esc(t.destination)}</td>
+      <td>$${Number(t.price).toLocaleString()}</td>
+      <td>${t.durationDays} days</td>
+      <td>
+        <div class="actions-cell">
+          <button class="btn-icon" title="Edit"   onclick="openEditModalById(${t.id})"><i class="fas fa-pen"></i></button>
+          <button class="btn-icon danger" title="Delete" onclick="deletePackage(${t.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join("");
 }
 
-async function deleteTour(id, title) {
-  if (!confirm(`Delete "${title}"?\n\nThis cannot be undone.`)) return;
+async function deletePackage(id) {
+  if (!confirm("Are you sure you want to delete this package?")) return;
   try {
     await apiFetch(`/api/tours/${id}`, { method: "DELETE" });
-    showToast(`"${title}" deleted successfully.`);
-    allTours = allTours.filter((t) => t.id !== id);
-    renderPackagesTable(allTours);
-    // Refresh dashboard stats if needed
+    showToast("Package deleted successfully.");
+    loadPackages();
   } catch (err) {
-    showToast("Delete failed: " + err.message, "error");
+    showToast(err.message, "error");
   }
 }
 
-// ─── MODAL — CREATE / EDIT ─────────────────────────────────────────────────
+// ─── BOOKINGS ─────────────────────────────────────────────────────────────────
+let bookingsData = [];
+let bookingPage  = 1;
+const PER_PAGE   = 5;
+
+async function loadBookings() {
+  const tbody = document.getElementById("bookingsTableBody");
+  tbody.innerHTML = `<tr><td colspan="8" class="loading-cell"><i class="fas fa-spinner fa-spin"></i> Loading…</td></tr>`;
+  try {
+    // Correct admin endpoint: GET /api/bookings/admin/all
+    const { bookings } = await apiFetch("/api/bookings/admin/all");
+    bookingsData = bookings;
+    bookingPage  = 1;
+    renderBookings();
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="8" class="loading-cell">Failed to load bookings: ${esc(err.message)}</td></tr>`;
+    showToast(err.message, "error");
+  }
+}
+
+function renderBookings() {
+  const query      = document.getElementById("bookingSearch")?.value.toLowerCase() || "";
+  const statusFilt = document.getElementById("statusFilter")?.value.toUpperCase() || "";
+
+  const filtered = bookingsData.filter((b) => {
+    const name = (b.user?.name || "").toLowerCase();
+    const pkg  = (b.tour?.title || "").toLowerCase();
+    const id   = String(b.id || "").toLowerCase();
+    const matchQ = !query || name.includes(query) || pkg.includes(query) || id.includes(query);
+    const matchS = !statusFilt || (b.status || "").toUpperCase() === statusFilt;
+    return matchQ && matchS;
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  if (bookingPage > totalPages) bookingPage = 1;
+  const slice = filtered.slice((bookingPage - 1) * PER_PAGE, bookingPage * PER_PAGE);
+  const tbody = document.getElementById("bookingsTableBody");
+
+  if (!slice.length) {
+    tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No bookings found</td></tr>`;
+  } else {
+    tbody.innerHTML = slice.map((b) => {
+      const name     = b.user?.name  || "—";
+      const email    = b.user?.email || b.contactEmail || "";
+      const pkgTitle = b.tour?.title || "—";
+      const price    = Number(b.tour?.price || 0);
+      const initials = name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+      const status   = (b.status || "PENDING").toUpperCase();
+      const statusClass = {
+        CONFIRMED: "badge-confirmed",
+        PENDING:   "badge-pending",
+        CANCELLED: "badge-cancelled",
+      }[status] || "badge-pending";
+      const date = b.createdAt?.slice(0, 10) || "—";
+      return `<tr>
+        <td class="cell-green">#${esc(String(b.id))}</td>
+        <td>
+          <div class="customer-cell">
+            <div class="customer-avatar">${initials}</div>
+            <div>
+              <div class="customer-name">${esc(name)}</div>
+              <div class="customer-email">${esc(email)}</div>
+            </div>
+          </div>
+        </td>
+        <td class="cell-green">${esc(pkgTitle)}</td>
+        <td>${esc(date)}</td>
+        <td>—</td>
+        <td>$${price.toLocaleString()}</td>
+        <td><span class="badge ${statusClass}">${capitalize(status)}</span></td>
+        <td>
+          <div class="actions-cell">
+            <button class="btn-icon" title="View"          onclick="viewBooking(${b.id})"><i class="fas fa-eye"></i></button>
+            <button class="btn-icon" title="Update Status" onclick="updateBookingStatus(${b.id}, '${status}')"><i class="fas fa-pen"></i></button>
+          </div>
+        </td>
+      </tr>`;
+    }).join("");
+  }
+
+  const pag = document.getElementById("bookingPagination");
+  pag.innerHTML = `
+    <button ${bookingPage === 1 ? "disabled" : ""} onclick="changeBookingPage(-1)">← Previous</button>
+    <span class="page-info">Page ${bookingPage} of ${totalPages}</span>
+    <button ${bookingPage >= totalPages ? "disabled" : ""} onclick="changeBookingPage(1)">Next →</button>
+  `;
+}
+
+function changeBookingPage(delta) { bookingPage += delta; renderBookings(); }
+document.getElementById("bookingSearch")?.addEventListener("input",  () => { bookingPage = 1; renderBookings(); });
+document.getElementById("statusFilter")?.addEventListener("change",  () => { bookingPage = 1; renderBookings(); });
+
+function viewBooking(id) {
+  const b = bookingsData.find((x) => x.id === id);
+  if (!b) return;
+  alert(
+    `Booking #${b.id}\n\n` +
+    `Customer:  ${b.user?.name  || "—"}\n` +
+    `Email:     ${b.user?.email || b.contactEmail || "—"}\n` +
+    `Passport:  ${b.passportNumber || "—"}\n` +
+    `Package:   ${b.tour?.title || "—"}\n` +
+    `Price:     $${Number(b.tour?.price || 0).toLocaleString()}\n` +
+    `Date:      ${b.createdAt?.slice(0, 10) || "—"}\n` +
+    `Status:    ${b.status || "—"}`
+  );
+}
+
+async function updateBookingStatus(id, currentStatus) {
+  const statuses = ["PENDING", "CONFIRMED", "CANCELLED"];
+  const next = statuses[(statuses.indexOf(currentStatus.toUpperCase()) + 1) % statuses.length];
+  if (!confirm(`Change status to "${capitalize(next)}"?`)) return;
+  try {
+    // Correct endpoint: PATCH /api/bookings/:id/status
+    await apiFetch(`/api/bookings/${id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: next }),
+    });
+    showToast("Booking status updated!");
+    loadBookings();
+  } catch (err) {
+    showToast(err.message, "error");
+  }
+}
+
+// ─── MODAL OPEN / CLOSE ───────────────────────────────────────────────────────
 let dayCount = 0;
-let editingTourId = null; // null = create mode, number = edit mode
 
 function openCreateModal() {
   editingTourId = null;
-  document.getElementById("modalTitle").textContent = "Create New Package";
+  document.getElementById("modalTitle").textContent    = "Create New Package";
   document.getElementById("modalSubtitle").textContent = "Add a new travel package to your catalog";
   document.getElementById("savePackageBtn").textContent = "Save Package";
   resetModal();
   document.getElementById("packageModal").classList.remove("hidden");
 }
 
-function openEditModal(tourId) {
-  const tour = allTours.find((t) => t.id === tourId);
+function openEditModalById(id) {
+  const tour = allTours.find((t) => t.id === id);
   if (!tour) return;
-
-  editingTourId = tourId;
-  document.getElementById("modalTitle").textContent = "Edit Package";
+  editingTourId = id;
+  document.getElementById("modalTitle").textContent    = "Edit Package";
   document.getElementById("modalSubtitle").textContent = "Update the details of this package";
   document.getElementById("savePackageBtn").textContent = "Update Package";
   resetModal();
-
-  // Populate fields
-  document.getElementById("pkgTitle").value = tour.title || "";
+  document.getElementById("pkgTitle").value       = tour.title       || "";
   document.getElementById("pkgDestination").value = tour.destination || "";
-  document.getElementById("pkgDuration").value = tour.durationDays || "";
-  document.getElementById("pkgPrice").value = tour.price || "";
+  document.getElementById("pkgDuration").value    = tour.durationDays|| "";
+  document.getElementById("pkgPrice").value       = tour.price       || "";
   document.getElementById("pkgDescription").value = tour.description || "";
-  document.getElementById("pkgImage").value = (tour.images || [])[0] || "";
-
-  // Itinerary — clear default days and repopulate from stored itinerary string
-  document.getElementById("itineraryDays").innerHTML = "";
-  dayCount = 0;
-  if (tour.itinerary) {
-    // Try to split by "Day N:" pattern
-    const lines = tour.itinerary.split(/\r?\n/).filter(Boolean);
-    lines.forEach((line) => addDay("", line));
-  } else {
-    addDay();
-  }
-
-  // Inclusions
-  document.getElementById("includedList").innerHTML = "";
-  document.getElementById("excludedList").innerHTML = "";
-  if (tour.included) {
-    tour.included.split(",").forEach((item) => {
-      const trimmed = item.trim();
-      if (trimmed) addItem("included", trimmed);
-    });
-  }
-  if (!document.getElementById("includedList").children.length) addItem("included");
-
+  document.getElementById("pkgImage").value       = (tour.images && tour.images[0]) || "";
   document.getElementById("packageModal").classList.remove("hidden");
 }
 
-function closeModal() {
-  document.getElementById("packageModal").classList.add("hidden");
-  editingTourId = null;
-}
+function openEditModal() { openCreateModal(); }
+function closeModal()    { document.getElementById("packageModal").classList.add("hidden"); }
 
-document.getElementById("newPackageBtn")?.addEventListener("click", (e) => {
-  e.stopPropagation();
-  openCreateModal();
-});
-
-document.getElementById("modalClose")?.addEventListener("click", closeModal);
-document.getElementById("cancelModalBtn")?.addEventListener("click", closeModal);
-
-document.getElementById("packageModal")?.addEventListener("click", (e) => {
+document.getElementById("newPackageBtn").addEventListener("click", (e) => { e.stopPropagation(); openCreateModal(); });
+document.getElementById("modalClose").addEventListener("click", closeModal);
+document.getElementById("cancelModalBtn").addEventListener("click", closeModal);
+document.getElementById("packageModal").addEventListener("click", (e) => {
   if (e.target === document.getElementById("packageModal")) closeModal();
 });
 
-// ─── SAVE / UPDATE PACKAGE ───────────────────────────────────────────────────
-document.getElementById("savePackageBtn")?.addEventListener("click", async () => {
-  const title = document.getElementById("pkgTitle").value.trim();
+// ─── SAVE / UPDATE PACKAGE ────────────────────────────────────────────────────
+document.getElementById("savePackageBtn").addEventListener("click", async () => {
+  const title       = document.getElementById("pkgTitle").value.trim();
   const destination = document.getElementById("pkgDestination").value.trim();
-  const durationDays = parseInt(document.getElementById("pkgDuration").value, 10);
-  const price = parseFloat(document.getElementById("pkgPrice").value);
+  const duration    = parseInt(document.getElementById("pkgDuration").value);
+  const price       = parseFloat(document.getElementById("pkgPrice").value);
   const description = document.getElementById("pkgDescription").value.trim();
-  const imageUrl = document.getElementById("pkgImage").value.trim();
+  const imageUrl    = document.getElementById("pkgImage").value.trim();
 
-  // Basic validation
-  if (!title || !destination || !durationDays || !price || !description) {
-    showToast("Please fill in all required fields.", "error");
+  if (!title || !destination || !duration || !price) {
+    showToast("Please fill in Title, Location, Duration and Price.", "error");
     return;
   }
 
-  // Build itinerary string from day blocks
-  const itinerary = Array.from(document.querySelectorAll(".day-block"))
-    .map((block, i) => {
-      const dayTitle = block.querySelector(".day-title")?.value?.trim() || "";
-      const dayDesc = block.querySelector(".day-desc")?.value?.trim() || "";
-      return `Day ${i + 1}: ${dayTitle}${dayDesc ? " — " + dayDesc : ""}`;
-    })
-    .join("\n");
+  const dayBlocks = document.querySelectorAll("#itineraryDays .day-block");
+  const itinerary = Array.from(dayBlocks).map((b, i) => {
+    const t = b.querySelector(".day-title")?.value.trim() || "";
+    const d = b.querySelector(".day-desc")?.value.trim()  || "";
+    return `Day ${i + 1}: ${t}${d ? " – " + d : ""}`;
+  }).join("\n");
 
-  // Build included string
-  const included = Array.from(document.querySelectorAll("#includedList .item-row input"))
-    .map((inp) => inp.value.trim())
-    .filter(Boolean)
-    .join(", ");
+  const includedInputs = document.querySelectorAll("#includedList .item-row input");
+  const included = Array.from(includedInputs).map((i) => i.value.trim()).filter(Boolean).join(", ");
 
-  const payload = {
-    title,
-    destination,
-    durationDays,
-    price,
-    description,
-    itinerary,
-    included,
-    images: imageUrl ? [imageUrl] : [],
-  };
+  const payload = { title, destination, description, price, durationDays: duration, itinerary, included, images: imageUrl ? [imageUrl] : [] };
 
-  const saveBtn = document.getElementById("savePackageBtn");
-  saveBtn.disabled = true;
-  saveBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving…`;
+  const btn = document.getElementById("savePackageBtn");
+  btn.disabled    = true;
+  btn.textContent = editingTourId ? "Updating…" : "Saving…";
 
   try {
     if (editingTourId) {
-      // UPDATE
-      const data = await apiFetch(`/api/tours/${editingTourId}`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
-      });
-      const updated = data.tour;
-      allTours = allTours.map((t) => (t.id === editingTourId ? updated : t));
-      showToast(`"${updated.title}" updated successfully!`);
+      await apiFetch(`/api/tours/${editingTourId}`, { method: "PUT",  body: JSON.stringify(payload) });
+      showToast("Package updated successfully!");
     } else {
-      // CREATE
-      const data = await apiFetch("/api/tours", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
-      allTours.push(data.tour);
-      showToast(`"${data.tour.title}" created successfully!`);
+      await apiFetch("/api/tours",                  { method: "POST", body: JSON.stringify(payload) });
+      showToast("Package created successfully!");
     }
-
-    renderPackagesTable(allTours);
     closeModal();
+    loadPackages();
   } catch (err) {
-    showToast("Save failed: " + err.message, "error");
+    showToast(err.message, "error");
   } finally {
-    saveBtn.disabled = false;
-    saveBtn.textContent = editingTourId ? "Update Package" : "Save Package";
+    btn.disabled    = false;
+    btn.textContent = editingTourId ? "Update Package" : "Save Package";
   }
 });
 
-// ─── RESET MODAL ─────────────────────────────────────────────────────────────
+// ─── RESET MODAL ──────────────────────────────────────────────────────────────
 function resetModal() {
-  ["pkgTitle", "pkgDestination", "pkgDuration", "pkgPrice", "pkgDescription", "pkgImage"].forEach((id) => {
+  ["pkgTitle","pkgDestination","pkgDuration","pkgPrice","pkgDescription","pkgImage"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.value = "";
   });
   document.getElementById("itineraryDays").innerHTML = "";
-  document.getElementById("includedList").innerHTML = "";
-  document.getElementById("excludedList").innerHTML = "";
+  document.getElementById("includedList").innerHTML  = "";
+  document.getElementById("excludedList").innerHTML  = "";
   dayCount = 0;
-  addDay();
-  addDay();
-  addDay();
-  addItem("included");
-  addItem("included");
-  addItem("included");
-  addItem("excluded");
-  addItem("excluded");
+  addDay(); addDay(); addDay();
+  addItem("included"); addItem("included"); addItem("included");
+  addItem("excluded"); addItem("excluded"); addItem("excluded");
 }
 
 // ─── ITINERARY DAYS ───────────────────────────────────────────────────────────
@@ -461,16 +437,14 @@ function addDay(titleVal = "", descVal = "") {
   `;
   container.appendChild(div);
 }
-
-document.getElementById("addDayBtn")?.addEventListener("click", () => addDay());
+document.getElementById("addDayBtn").addEventListener("click", () => addDay());
 
 // ─── INCLUSIONS / EXCLUSIONS ──────────────────────────────────────────────────
 function addItem(type, text = "") {
   const listEl = document.getElementById(type + "List");
-  const placeholders =
-    type === "included"
-      ? ["Airport transfers", "Hotel accommodation", "Daily breakfast"]
-      : ["International flights", "Travel insurance", "Personal expenses"];
+  const placeholders = type === "included"
+    ? ["Airport transfers", "Hotel accommodation", "Daily breakfast"]
+    : ["International flights", "Travel insurance", "Personal expenses"];
   const placeholder = placeholders[listEl.children.length % 3];
   const row = document.createElement("div");
   row.className = "item-row";
@@ -481,150 +455,8 @@ function addItem(type, text = "") {
   `;
   listEl.appendChild(row);
 }
-
-document.getElementById("addIncludedBtn")?.addEventListener("click", () => addItem("included"));
-document.getElementById("addExcludedBtn")?.addEventListener("click", () => addItem("excluded"));
-
-// ─── BOOKINGS ────────────────────────────────────────────────────────────────
-let allBookings = [];
-
-async function loadBookings() {
-  const tbody = document.getElementById("bookingsTableBody");
-  if (!tbody) return;
-  tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:#888"><i class="fas fa-spinner fa-spin"></i> Loading…</td></tr>`;
-
-  try {
-    const data = await apiFetch("/api/bookings/admin/all");
-    allBookings = data.bookings || [];
-    renderBookingsTable(allBookings);
-    setupBookingFilters();
-  } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#ef4444;padding:20px">Failed to load bookings: ${err.message}</td></tr>`;
-  }
-}
-
-function renderBookingsTable(bookings) {
-  const tbody = document.getElementById("bookingsTableBody");
-  if (!tbody) return;
-
-  tbody.innerHTML = bookings.length
-    ? bookings
-        .map(
-          (b) => `
-      <tr data-booking-id="${b.id}">
-        <td class="cell-green">#BK${String(b.id).padStart(3, "0")}</td>
-        <td>
-          <div class="customer-cell">
-            <div class="customer-avatar">${(b.user?.name || "?")[0].toUpperCase()}</div>
-            <div>
-              <div class="customer-name">${b.user?.name || "—"}</div>
-              <div class="customer-email">${b.user?.email || b.contactEmail || "—"}</div>
-            </div>
-          </div>
-        </td>
-        <td class="cell-green">${b.tour?.title || "—"}</td>
-        <td>${fmtDate(b.createdAt)}</td>
-        <td>—</td>
-        <td>${fmt$(b.tour?.price || 0)}</td>
-        <td>${statusBadge(b.status)}</td>
-        <td>
-          <div class="actions-cell">
-            <button class="btn-icon" onclick="viewBooking(${b.id})" title="View details"><i class="fas fa-eye"></i></button>
-            <button class="btn-icon" onclick="openStatusModal(${b.id}, '${b.status}')" title="Update status"><i class="fas fa-pen"></i></button>
-          </div>
-        </td>
-      </tr>`
-        )
-        .join("")
-    : `<tr><td colspan="8" style="text-align:center;color:#888;padding:20px">No bookings found.</td></tr>`;
-}
-
-/** Show booking detail in a simple alert (can be enhanced later) */
-function viewBooking(id) {
-  const b = allBookings.find((x) => x.id === id);
-  if (!b) return;
-  alert(
-    `Booking #BK${String(b.id).padStart(3, "0")}\n\n` +
-      `Customer: ${b.user?.name || "—"} (${b.user?.email || b.contactEmail})\n` +
-      `Tour: ${b.tour?.title || "—"}\n` +
-      `Passport: ${b.passportNumber || "—"}\n` +
-      `Status: ${b.status}\n` +
-      `Price: ${fmt$(b.tour?.price || 0)}\n` +
-      `Booked on: ${fmtDate(b.createdAt)}`
-  );
-}
-
-/** Inline status update dropdown */
-function openStatusModal(bookingId, currentStatus) {
-  const statusOptions = ["PENDING", "CONFIRMED", "CANCELLED"];
-  const choice = prompt(
-    `Update status for #BK${String(bookingId).padStart(3, "0")}\n\nCurrent: ${currentStatus}\n\nEnter new status:\n  • PENDING\n  • CONFIRMED\n  • CANCELLED`,
-    currentStatus
-  );
-  if (!choice) return;
-  const newStatus = choice.trim().toUpperCase();
-  if (!statusOptions.includes(newStatus)) {
-    showToast("Invalid status. Use PENDING, CONFIRMED, or CANCELLED.", "error");
-    return;
-  }
-  if (newStatus === currentStatus) return;
-  updateBookingStatus(bookingId, newStatus);
-}
-
-async function updateBookingStatus(bookingId, newStatus) {
-  try {
-    await apiFetch(`/api/bookings/${bookingId}/status`, {
-      method: "PATCH",
-      body: JSON.stringify({ status: newStatus }),
-    });
-    allBookings = allBookings.map((b) => (b.id === bookingId ? { ...b, status: newStatus } : b));
-    renderBookingsTable(filterBookingsList());
-    showToast(`Booking #BK${String(bookingId).padStart(3, "0")} updated to ${newStatus}.`);
-  } catch (err) {
-    showToast("Status update failed: " + err.message, "error");
-  }
-}
-
-/** Returns currently filtered bookings based on search and status inputs */
-function filterBookingsList() {
-  const search = (document.getElementById("bookingSearch")?.value || "").toLowerCase();
-  const statusVal = (document.getElementById("statusFilter")?.value || "").toUpperCase();
-
-  return allBookings.filter((b) => {
-    const matchSearch =
-      !search ||
-      b.user?.name?.toLowerCase().includes(search) ||
-      b.tour?.title?.toLowerCase().includes(search) ||
-      b.contactEmail?.toLowerCase().includes(search) ||
-      String(b.id).includes(search);
-
-    const matchStatus = !statusVal || b.status === statusVal;
-
-    return matchSearch && matchStatus;
-  });
-}
-
-function setupBookingFilters() {
-  const searchInput = document.getElementById("bookingSearch");
-  const statusSelect = document.getElementById("statusFilter");
-
-  const handler = () => renderBookingsTable(filterBookingsList());
-
-  if (searchInput) {
-    searchInput.removeEventListener("input", handler);
-    searchInput.addEventListener("input", handler);
-  }
-  if (statusSelect) {
-    statusSelect.removeEventListener("change", handler);
-    statusSelect.addEventListener("change", handler);
-  }
-}
+document.getElementById("addIncludedBtn").addEventListener("click", () => addItem("included"));
+document.getElementById("addExcludedBtn").addEventListener("click", () => addItem("excluded"));
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
-(async () => {
-  const authed = await initAuth();
-  if (!authed) return;
-
-  showPage("dashboard");
-  loadDashboard();
-})();
+showPage("dashboard");

@@ -32,13 +32,12 @@ async function handleLogin() {
       return;
     }
 
-    // Store the token and user info for use on other pages
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
 
     // Redirect based on role
     if (data.user && data.user.role === "ADMIN") {
-      window.location.href = "admin.html";
+      window.location.href = "Admin.html";
     } else {
       window.location.href = "index.html";
     }
