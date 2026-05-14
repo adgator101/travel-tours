@@ -33,6 +33,12 @@ async function loadTourDetails() {
         // ── Page title
         document.title = `${tour.title} - Travel Tours`;
 
+        // Update modal tour name & price
+        const modalTourName = document.getElementById('modalTourName');
+        if (modalTourName) modalTourName.textContent = tour.title;
+        const modalPrice = document.getElementById('modalPrice');
+        if (modalPrice && tour.price) modalPrice.textContent = `$${Number(tour.price).toLocaleString()}`;
+
         // ── Hero image
         const heroImg = document.querySelector('.hero-image');
         if (heroImg) {
@@ -188,11 +194,88 @@ function switchTab(tabName) {
     event.target.classList.add('active');
 }
 
-document.querySelector('.book-btn')?.addEventListener('click', function () {
-    alert('Booking feature coming soon!');
-});
+// ─── BOOKING MODAL ────────────────────────────────────────────────────────────
+
+function openBookingModal() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        // Not logged in — redirect to login, come back after
+        const returnUrl = encodeURIComponent(window.location.href);
+        window.location.href = `login.html?redirect=${returnUrl}`;
+        return;
+    }
+    document.getElementById('bookingModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeBookingModal() {
+    document.getElementById('bookingModal').classList.remove('active');
+    document.body.style.overflow = '';
+    // Reset form
+    document.getElementById('bookingForm').reset();
+    document.getElementById('bookingError').style.display = 'none';
+    document.getElementById('bookingSuccess').style.display = 'none';
+    document.getElementById('bookingFormBody').style.display = 'block';
+}
+
+async function submitBooking(e) {
+    e.preventDefault();
+
+    const params = new URLSearchParams(window.location.search);
+    const tourId = parseInt(params.get('id'), 10);
+    const contactEmail = document.getElementById('bookingEmail').value.trim();
+    const passportNumber = document.getElementById('bookingPassport').value.trim();
+    const token = localStorage.getItem('token');
+
+    const errorEl = document.getElementById('bookingError');
+    const submitBtn = document.getElementById('bookingSubmitBtn');
+
+    errorEl.style.display = 'none';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Booking…';
+
+    try {
+        const res = await fetch(API_BASE_DET('/api/bookings'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ tourId, contactEmail, passportNumber })
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+            throw new Error(data.message || 'Booking failed. Please try again.');
+        }
+
+        // Show success state
+        document.getElementById('bookingFormBody').style.display = 'none';
+        const successEl = document.getElementById('bookingSuccess');
+        successEl.style.display = 'flex';
+        const b = data.booking;
+        document.getElementById('successTourName').textContent = b.tour?.title || 'Your Tour';
+        document.getElementById('successBookingId').textContent = `#${b.id}`;
+        document.getElementById('successEmail').textContent = b.contactEmail;
+        document.getElementById('successStatus').textContent = b.status;
+
+    } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.style.display = 'block';
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Confirm Booking';
+    }
+}
+
+document.querySelector('.book-btn')?.addEventListener('click', openBookingModal);
+
 document.querySelector('.contact-btn')?.addEventListener('click', function () {
-    alert('Contact form coming soon!');
+    window.location.href = 'mailto:support@traveltours.com';
+});
+
+document.addEventListener('click', function(e) {
+    if (e.target.id === 'bookingModal') closeBookingModal();
 });
 
 const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
