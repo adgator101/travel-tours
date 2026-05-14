@@ -20,7 +20,7 @@ const toPublicUser = (user) => ({
 export const createAuthService = ({ prisma, authUtils }) => ({
   async register({ name, email, password, nationality, phone }) {
     const normalizedEmail = email.toLowerCase();
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.user.findFirst({
       where: { email: normalizedEmail },
     });
 
@@ -29,16 +29,25 @@ export const createAuthService = ({ prisma, authUtils }) => ({
     }
 
     const passwordHash = await authUtils.hashPassword(password);
-    const user = await prisma.user.create({
-      data: {
-        publicId: uuidv7(),
-        name,
-        email: normalizedEmail,
-        password: passwordHash,
-        nationality,
-        phone,
-      },
-    });
+    
+    let user;
+    try {
+      user = await prisma.user.create({
+        data: {
+          publicId: uuidv7(),
+          name,
+          email: normalizedEmail,
+          password: passwordHash,
+          nationality,
+          phone,
+        },
+      });
+    } catch (error) {
+      if (error.code === 'P2002') {
+        return failure("USER_EXISTS", "User already exists");
+      }
+      throw error;
+    }
 
     const token = authUtils.signToken({ sub: user.id, email: user.email });
     return success({ token, user: toPublicUser(user) });
