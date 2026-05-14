@@ -95,6 +95,7 @@ export const createAuthService = ({ prisma, authUtils }) => ({
   async logout({ token }) {
     try {
       authUtils.verifyToken(token);
+      authUtils.invalidateToken(token);
     } catch {
       return failure("INVALID_TOKEN", "Invalid or expired token");
     }
