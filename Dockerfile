@@ -9,7 +9,7 @@ COPY backend/prisma ./backend/prisma
 COPY backend/prisma.config.ts ./backend/prisma.config.ts
 
 WORKDIR /app/backend
-
+RUN pnpm approve-builds --all || true
 RUN pnpm install --frozen-lockfile
 RUN DATABASE_URL="mysql://root:password@localhost:3306/travel_tours" pnpm prisma:generate
 
