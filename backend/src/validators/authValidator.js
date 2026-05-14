@@ -42,7 +42,7 @@ const registerSchema = z.object({
 
 const loginSchema = z.object({
   email: z.string().trim().email("Please provide a valid email address").transform((value) => value.toLowerCase()),
-  password: z.string().min(1, "Password is required"),
+  password: z.string().min(1, "Password is required").refine(val => val.trim().length > 0, "Password must not be blank"),
 });
 
 const authHeaderSchema = z
