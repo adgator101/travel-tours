@@ -11,6 +11,14 @@ const API = 'https://travel-tours-app.happygrass-dcd4e26f.centralindia.azurecont
   document.getElementById("adminName").textContent   = user.name || "Admin Portal";
 })();
 
+// Fix Auth_22 — prevent back button access after logout
+window.addEventListener("pageshow", (e) => {
+  if (e.persisted) {
+    const token = localStorage.getItem("token");
+    if (!token) window.location.href = "login.html";
+  }
+});
+
 function getToken() { return localStorage.getItem("token") || ""; }
 
 async function apiFetch(path, opts = {}) {
@@ -56,6 +64,7 @@ document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   try { await apiFetch("/api/auth/logout", { method: "POST" }); } catch (_) {}
   localStorage.removeItem("token");
   localStorage.removeItem("user");
+  history.replaceState(null, "", "login.html");
   window.location.href = "login.html";
 });
 
@@ -85,7 +94,6 @@ function showToast(msg, type = "success") {
 
 // ─── DASHBOARD ────────────────────────────────────────────────────────────────
 async function loadDashboard() {
-  // Packages
   try {
     const { tours } = await apiFetch("/api/tours");
     document.getElementById("statPackages").textContent = tours.length;
@@ -101,24 +109,18 @@ async function loadDashboard() {
       : `<tr><td colspan="5" class="loading-cell">No packages yet</td></tr>`;
   } catch (err) {
     document.getElementById("statPackages").textContent = "—";
-    console.error("Tours error:", err);
   }
 
-  // Bookings — GET /api/bookings/admin/all
   try {
     const { bookings } = await apiFetch("/api/bookings/admin/all");
     document.getElementById("statBookings").textContent = bookings.length;
-
     const revenue = bookings.reduce((sum, b) => sum + Number(b.tour?.price || 0), 0);
     document.getElementById("statRevenue").textContent = "$" + revenue.toLocaleString();
-
     const tbody  = document.getElementById("recentBookingsBody");
     const recent = bookings.slice(0, 3);
     tbody.innerHTML = recent.length
       ? recent.map((b) => {
-          const statusClass = {
-            confirmed: "badge-confirmed", pending: "badge-pending", cancelled: "badge-cancelled"
-          }[(b.status || "").toLowerCase()] || "badge-pending";
+          const statusClass = { confirmed: "badge-confirmed", pending: "badge-pending", cancelled: "badge-cancelled" }[(b.status || "").toLowerCase()] || "badge-pending";
           return `<tr>
             <td class="cell-green">#${esc(String(b.id))}</td>
             <td class="cell-green">${esc(b.user?.name || "—")}</td>
@@ -132,8 +134,7 @@ async function loadDashboard() {
   } catch (err) {
     document.getElementById("statBookings").textContent = "—";
     document.getElementById("statRevenue").textContent  = "—";
-    document.getElementById("recentBookingsBody").innerHTML =
-      `<tr><td colspan="6" class="loading-cell">Could not load bookings</td></tr>`;
+    document.getElementById("recentBookingsBody").innerHTML = `<tr><td colspan="6" class="loading-cell">Could not load bookings</td></tr>`;
   }
 
   document.getElementById("statUsers").textContent = "—";
@@ -170,7 +171,7 @@ function renderPackagesTable(tours) {
       <td>${t.durationDays} days</td>
       <td>
         <div class="actions-cell">
-          <button class="btn-icon" title="Edit"   onclick="openEditModalById(${t.id})"><i class="fas fa-pen"></i></button>
+          <button class="btn-icon" title="Edit" onclick="openEditModalById(${t.id})"><i class="fas fa-pen"></i></button>
           <button class="btn-icon danger" title="Delete" onclick="deletePackage(${t.id})"><i class="fas fa-trash"></i></button>
         </div>
       </td>
@@ -178,14 +179,19 @@ function renderPackagesTable(tours) {
 }
 
 async function deletePackage(id) {
-  if (!confirm("Are you sure you want to delete this package?")) return;
-  try {
-    await apiFetch(`/api/tours/${id}`, { method: "DELETE" });
-    showToast("Package deleted successfully.");
-    loadPackages();
-  } catch (err) {
-    showToast(err.message, "error");
-  }
+  showConfirmModal(
+    "Are you sure you want to delete this package? This cannot be undone.",
+    async () => {
+      try {
+        await apiFetch(`/api/tours/${id}`, { method: "DELETE" });
+        showToast("Package deleted successfully.");
+        loadPackages();
+      } catch (err) {
+        showToast(err.message, "error");
+      }
+    },
+    "danger"
+  );
 }
 
 // ─── BOOKINGS ─────────────────────────────────────────────────────────────────
@@ -197,7 +203,6 @@ async function loadBookings() {
   const tbody = document.getElementById("bookingsTableBody");
   tbody.innerHTML = `<tr><td colspan="8" class="loading-cell"><i class="fas fa-spinner fa-spin"></i> Loading…</td></tr>`;
   try {
-    // Correct admin endpoint: GET /api/bookings/admin/all
     const { bookings } = await apiFetch("/api/bookings/admin/all");
     bookingsData = bookings;
     bookingPage  = 1;
@@ -236,11 +241,7 @@ function renderBookings() {
       const price    = Number(b.tour?.price || 0);
       const initials = name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
       const status   = (b.status || "PENDING").toUpperCase();
-      const statusClass = {
-        CONFIRMED: "badge-confirmed",
-        PENDING:   "badge-pending",
-        CANCELLED: "badge-cancelled",
-      }[status] || "badge-pending";
+      const statusClass = { CONFIRMED: "badge-confirmed", PENDING: "badge-pending", CANCELLED: "badge-cancelled" }[status] || "badge-pending";
       const date = b.createdAt?.slice(0, 10) || "—";
       return `<tr>
         <td class="cell-green">#${esc(String(b.id))}</td>
@@ -260,7 +261,7 @@ function renderBookings() {
         <td><span class="badge ${statusClass}">${capitalize(status)}</span></td>
         <td>
           <div class="actions-cell">
-            <button class="btn-icon" title="View"          onclick="viewBooking(${b.id})"><i class="fas fa-eye"></i></button>
+            <button class="btn-icon" title="View" onclick="viewBooking(${b.id})"><i class="fas fa-eye"></i></button>
             <button class="btn-icon" title="Update Status" onclick="updateBookingStatus(${b.id}, '${status}')"><i class="fas fa-pen"></i></button>
           </div>
         </td>
@@ -280,36 +281,72 @@ function changeBookingPage(delta) { bookingPage += delta; renderBookings(); }
 document.getElementById("bookingSearch")?.addEventListener("input",  () => { bookingPage = 1; renderBookings(); });
 document.getElementById("statusFilter")?.addEventListener("change",  () => { bookingPage = 1; renderBookings(); });
 
+// ─── VIEW BOOKING MODAL ───────────────────────────────────────────────────────
 function viewBooking(id) {
   const b = bookingsData.find((x) => x.id === id);
   if (!b) return;
-  alert(
-    `Booking #${b.id}\n\n` +
-    `Customer:  ${b.user?.name  || "—"}\n` +
-    `Email:     ${b.user?.email || b.contactEmail || "—"}\n` +
-    `Passport:  ${b.passportNumber || "—"}\n` +
-    `Package:   ${b.tour?.title || "—"}\n` +
-    `Price:     $${Number(b.tour?.price || 0).toLocaleString()}\n` +
-    `Date:      ${b.createdAt?.slice(0, 10) || "—"}\n` +
-    `Status:    ${b.status || "—"}`
-  );
+  const status   = (b.status || "PENDING").toUpperCase();
+  const statusClass = { CONFIRMED: "badge-confirmed", PENDING: "badge-pending", CANCELLED: "badge-cancelled" }[status] || "badge-pending";
+  document.getElementById("viewModalId").textContent = `Booking #${b.id}`;
+  document.getElementById("viewModalContent").innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:0.92rem;">
+      <tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:10px 0;color:#7a8f7a;width:40%">Customer</td><td style="padding:10px 0;font-weight:600;">${esc(b.user?.name || "—")}</td></tr>
+      <tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:10px 0;color:#7a8f7a;">Email</td><td style="padding:10px 0;">${esc(b.user?.email || b.contactEmail || "—")}</td></tr>
+      <tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:10px 0;color:#7a8f7a;">Passport</td><td style="padding:10px 0;">${esc(b.passportNumber || "—")}</td></tr>
+      <tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:10px 0;color:#7a8f7a;">Package</td><td style="padding:10px 0;color:#4CAF50;font-weight:600;">${esc(b.tour?.title || "—")}</td></tr>
+      <tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:10px 0;color:#7a8f7a;">Price</td><td style="padding:10px 0;font-weight:600;">$${Number(b.tour?.price || 0).toLocaleString()}</td></tr>
+      <tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:10px 0;color:#7a8f7a;">Booked On</td><td style="padding:10px 0;">${esc(b.createdAt?.slice(0, 10) || "—")}</td></tr>
+      <tr><td style="padding:10px 0;color:#7a8f7a;">Status</td><td style="padding:10px 0;"><span class="badge ${statusClass}">${capitalize(status)}</span></td></tr>
+    </table>
+  `;
+  document.getElementById("viewModal").classList.remove("hidden");
 }
 
-async function updateBookingStatus(id, currentStatus) {
+document.getElementById("viewModalClose").addEventListener("click", () => document.getElementById("viewModal").classList.add("hidden"));
+document.getElementById("viewModalCloseBtn").addEventListener("click", () => document.getElementById("viewModal").classList.add("hidden"));
+document.getElementById("viewModal").addEventListener("click", (e) => { if (e.target === document.getElementById("viewModal")) document.getElementById("viewModal").classList.add("hidden"); });
+
+// ─── STATUS UPDATE MODAL ──────────────────────────────────────────────────────
+function showConfirmModal(message, onConfirm, type = "normal") {
+  const modal      = document.getElementById("statusModal");
+  const msgEl      = document.getElementById("statusModalMsg");
+  const confirmBtn = document.getElementById("statusModalConfirm");
+  const cancelBtn  = document.getElementById("statusModalCancel");
+  const closeBtn   = document.getElementById("statusModalClose");
+
+  msgEl.textContent = message;
+  confirmBtn.style.background = type === "danger" ? "#e53935" : "#4CAF50";
+  modal.classList.remove("hidden");
+
+  function closeModal() { modal.classList.add("hidden"); }
+
+  confirmBtn.onclick = () => { closeModal(); onConfirm(); };
+  cancelBtn.onclick  = closeModal;
+  closeBtn.onclick   = closeModal;
+  modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+}
+
+function updateBookingStatus(id, currentStatus) {
   const statuses = ["PENDING", "CONFIRMED", "CANCELLED"];
   const next = statuses[(statuses.indexOf(currentStatus.toUpperCase()) + 1) % statuses.length];
-  if (!confirm(`Change status to "${capitalize(next)}"?`)) return;
-  try {
-    // Correct endpoint: PATCH /api/bookings/:id/status
-    await apiFetch(`/api/bookings/${id}/status`, {
-      method: "PATCH",
-      body: JSON.stringify({ status: next }),
-    });
-    showToast("Booking status updated!");
-    loadBookings();
-  } catch (err) {
-    showToast(err.message, "error");
-  }
+  const type = next === "CANCELLED" ? "danger" : "normal";
+
+  showConfirmModal(
+    `Are you sure you want to change this booking status to "${capitalize(next)}"?`,
+    async () => {
+      try {
+        await apiFetch(`/api/bookings/${id}/status`, {
+          method: "PATCH",
+          body: JSON.stringify({ status: next }),
+        });
+        showToast("Booking status updated!");
+        loadBookings();
+      } catch (err) {
+        showToast(err.message, "error");
+      }
+    },
+    type
+  );
 }
 
 // ─── MODAL OPEN / CLOSE ───────────────────────────────────────────────────────
@@ -332,11 +369,11 @@ function openEditModalById(id) {
   document.getElementById("modalSubtitle").textContent = "Update the details of this package";
   document.getElementById("savePackageBtn").textContent = "Update Package";
   resetModal();
-  document.getElementById("pkgTitle").value       = tour.title       || "";
-  document.getElementById("pkgDestination").value = tour.destination || "";
-  document.getElementById("pkgDuration").value    = tour.durationDays|| "";
-  document.getElementById("pkgPrice").value       = tour.price       || "";
-  document.getElementById("pkgDescription").value = tour.description || "";
+  document.getElementById("pkgTitle").value       = tour.title        || "";
+  document.getElementById("pkgDestination").value = tour.destination  || "";
+  document.getElementById("pkgDuration").value    = tour.durationDays || "";
+  document.getElementById("pkgPrice").value       = tour.price        || "";
+  document.getElementById("pkgDescription").value = tour.description  || "";
   document.getElementById("pkgImage").value       = (tour.images && tour.images[0]) || "";
   document.getElementById("packageModal").classList.remove("hidden");
 }
@@ -347,9 +384,7 @@ function closeModal()    { document.getElementById("packageModal").classList.add
 document.getElementById("newPackageBtn").addEventListener("click", (e) => { e.stopPropagation(); openCreateModal(); });
 document.getElementById("modalClose").addEventListener("click", closeModal);
 document.getElementById("cancelModalBtn").addEventListener("click", closeModal);
-document.getElementById("packageModal").addEventListener("click", (e) => {
-  if (e.target === document.getElementById("packageModal")) closeModal();
-});
+document.getElementById("packageModal").addEventListener("click", (e) => { if (e.target === document.getElementById("packageModal")) closeModal(); });
 
 // ─── SAVE / UPDATE PACKAGE ────────────────────────────────────────────────────
 document.getElementById("savePackageBtn").addEventListener("click", async () => {
@@ -374,7 +409,6 @@ document.getElementById("savePackageBtn").addEventListener("click", async () => 
 
   const includedInputs = document.querySelectorAll("#includedList .item-row input");
   const included = Array.from(includedInputs).map((i) => i.value.trim()).filter(Boolean).join(", ");
-
   const payload = { title, destination, description, price, durationDays: duration, itinerary, included, images: imageUrl ? [imageUrl] : [] };
 
   const btn = document.getElementById("savePackageBtn");

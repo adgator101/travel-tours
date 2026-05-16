@@ -2,10 +2,18 @@ document.getElementById("loginBtn").addEventListener("click", handleLogin);
 
 async function handleLogin() {
   const email = document.getElementById("email").value.trim();
-  const pass = document.getElementById("password").value;
+  const pass  = document.getElementById("password").value;
+
+  hideError();
 
   if (!email || !pass) {
     showError("Please fill in all fields.");
+    return;
+  }
+
+  // Fix Auth_14 — spaces-only password
+  if (!pass.trim()) {
+    showError("Password cannot be blank or spaces only.");
     return;
   }
 
@@ -35,7 +43,6 @@ async function handleLogin() {
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
 
-    // Redirect based on role
     if (data.user && data.user.role === "ADMIN") {
       window.location.href = "Admin.html";
     } else {
@@ -54,9 +61,19 @@ function showError(message) {
   let errorEl = document.getElementById("error-msg");
   if (errorEl) {
     errorEl.textContent = message;
+    errorEl.classList.remove("hidden");
     errorEl.style.display = "block";
   } else {
     alert(message);
+  }
+}
+
+function hideError() {
+  let errorEl = document.getElementById("error-msg");
+  if (errorEl) {
+    errorEl.textContent = "";
+    errorEl.classList.add("hidden");
+    errorEl.style.display = "none";
   }
 }
 
