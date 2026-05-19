@@ -1,55 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+* {
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #f4f7f2;
+}
+
+/* ─── HEADER ─────────────────────────────────────────── */
 header {
     background-color: #fff;
     border-bottom: 2px solid #5cb85c;
-    padding: 15px 50px;
+    padding: 14px 50px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .logo-section {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .logo-icon {
-    width: 40px;
-    height: 40px;
-    background-color: #5cb85c;
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, #5cb85c, #3d9b3d);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 20px;
+    font-size: 24px;
+    box-shadow: 0 3px 10px rgba(92,184,92,0.35);
+    flex-shrink: 0;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .logo-text h1 {
-    font-size: 18px;
+    font-size: 22px;
     color: #5cb85c;
-    font-weight: 600;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.3px;
 }
 
 .logo-text p {
-    font-size: 11px;
+    font-size: 12px;
     color: #888;
+    font-weight: 400;
+    margin-top: 1px;
 }
 
+/* ─── AUTH BUTTONS ───────────────────────────────────── */
 .auth-buttons {
     display: flex;
     gap: 10px;
 }
 
 .btn {
-    padding: 8px 20px;
-    border-radius: 5px;
+    padding: 9px 22px;
+    border-radius: 6px;
     border: 1px solid #ddd;
     background-color: #fff;
     color: #666;
     cursor: pointer;
     font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
     transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .btn:hover {
@@ -66,54 +100,84 @@ header {
     background-color: #4cae4c;
 }
 
+/* ─── HERO ───────────────────────────────────────────── */
 .hero {
     text-align: center;
-    padding: 60px 20px 40px;
+    padding: 70px 20px 50px;
+    background: linear-gradient(180deg, #eaf5ea 0%, #f4f7f2 100%);
 }
 
 .hero h2 {
-    font-size: 36px;
-    color: #333;
-    margin-bottom: 15px;
-    font-weight: 500;
+    font-size: 42px;
+    color: #1a2e1a;
+    margin-bottom: 14px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
 }
 
 .hero p {
-    color: #888;
+    color: #666;
     font-size: 16px;
-    max-width: 500px;
+    max-width: 520px;
     margin: 0 auto;
-    line-height: 1.5;
+    line-height: 1.7;
+    font-weight: 400;
 }
 
+/* ─── TOURS SECTION WITH MOUNTAIN BACKGROUND ─────────── */
 .tours-container {
+    position: relative;
+    max-width: 100%;
+    padding: 60px 50px 80px;
+}
+
+.tours-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80');
+    background-size: cover;
+    background-position: center 40%;
+    background-attachment: fixed;
+}
+
+.tours-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.82);
+}
+
+.tours-inner {
+    position: relative;
+    z-index: 1;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px 50px 60px;
 }
 
 .tours-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
+    gap: 28px;
 }
 
+/* ─── TOUR CARD ──────────────────────────────────────── */
 .tour-card {
     background-color: #fff;
-    border-radius: 10px;
+    border-radius: 14px;
     overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .tour-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
 }
 
 .card-image {
     position: relative;
-    height: 180px;
+    height: 200px;
     overflow: hidden;
 }
 
@@ -121,50 +185,59 @@ header {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.tour-card:hover .card-image img {
+    transform: scale(1.05);
 }
 
 .price-tag {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: rgba(255,255,255,0.95);
-    padding: 5px 12px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: 600;
+    top: 12px;
+    right: 12px;
+    background-color: rgba(255,255,255,0.96);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
     color: #5cb85c;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 
 .card-content {
-    padding: 20px;
+    padding: 22px;
 }
 
 .card-content h3 {
-    font-size: 16px;
-    color: #333;
-    margin-bottom: 12px;
-    font-weight: 600;
+    font-size: 17px;
+    color: #222;
+    margin-bottom: 14px;
+    font-weight: 700;
+    line-height: 1.3;
 }
 
 .card-info {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-bottom: 15px;
+    gap: 10px;
+    margin-bottom: 18px;
 }
 
 .info-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: #888;
+    gap: 10px;
+    font-size: 15px;
+    color: #555;
+    font-weight: 400;
 }
 
 .info-item i {
     color: #5cb85c;
-    font-size: 12px;
-    width: 16px;
+    font-size: 14px;
+    width: 18px;
+    flex-shrink: 0;
 }
 
 .rating {
@@ -185,30 +258,37 @@ header {
 
 .view-details-btn {
     width: 100%;
-    padding: 12px;
-    background-color: #5cb85c;
+    padding: 13px;
+    background: linear-gradient(135deg, #5cb85c, #4cae4c);
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s ease;
+    margin-top: 4px;
+    letter-spacing: 0.2px;
 }
 
 .view-details-btn:hover {
-    background-color: #4cae4c;
+    background: linear-gradient(135deg, #4cae4c, #3d9b3d);
+    box-shadow: 0 4px 12px rgba(92,184,92,0.4);
 }
 
+/* ─── FOOTER ─────────────────────────────────────────── */
 footer {
     text-align: center;
-    padding: 20px;
-    color: #888;
-    font-size: 12px;
-    border-top: 1px solid #eee;
+    padding: 24px;
+    color: #999;
+    font-size: 13px;
+    border-top: 1px solid #e0e0e0;
+    background: #fff;
+    font-weight: 400;
 }
 
+/* ─── RESPONSIVE ─────────────────────────────────────── */
 @media (max-width: 992px) {
     .tours-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -219,16 +299,26 @@ footer {
     .tours-grid {
         grid-template-columns: 1fr;
     }
-    
+
     header {
-        padding: 15px 20px;
+        padding: 14px 20px;
     }
-    
+
+    .logo-text h1 {
+        font-size: 18px;
+    }
+
+    .logo-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+    }
+
     .tours-container {
-        padding: 20px;
+        padding: 40px 20px 60px;
     }
-    
+
     .hero h2 {
-        font-size: 28px;
+        font-size: 30px;
     }
 }
