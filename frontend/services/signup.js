@@ -1,4 +1,3 @@
-// Map dial codes to nationality/country names for the API's "nationality" field
 const dialCodeToNationality = {
   '+1':   'United States',
   '+44':  'United Kingdom',
@@ -23,7 +22,8 @@ async function handleSignup() {
   const pass     = document.getElementById('password').value;
   const confirm  = document.getElementById('confirm').value;
 
-  // --- Client-side validation (kept exactly as before) ---
+  hideError();
+
   if (!name || !email || !phone || !pass || !confirm) {
     showError('Please fill in all fields.');
     return;
@@ -39,6 +39,12 @@ async function handleSignup() {
     return;
   }
 
+  // Fix Auth_14 equivalent — spaces-only password
+  if (!pass.trim()) {
+    showError('Password cannot be blank or spaces only.');
+    return;
+  }
+
   if (pass.length < 6) {
     showError('Password must be at least 6 characters.');
     return;
@@ -49,7 +55,6 @@ async function handleSignup() {
     return;
   }
 
-  // Derive nationality from the selected dial code or use explicit selection
   const nationality = nationalitySel || dialCodeToNationality[dialCode] || 'Nepal';
 
   const btn = document.getElementById('signupBtn');
@@ -66,16 +71,17 @@ async function handleSignup() {
     const data = await res.json();
 
     if (!res.ok) {
-      // Handle specific errors: 409 = user already exists, 400 = validation
-      showError(data.message || 'Registration failed. Please try again.');
+      // Fix Auth_02 — 409 duplicate email shows clear message
+      if (res.status === 409) {
+        showError('An account with this email already exists. Please login instead.');
+      } else {
+        showError(data.message || 'Registration failed. Please try again.');
+      }
       return;
     }
 
-    // Store the token and user info — user is logged in right after signup
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
-
-    // Redirect to main page after successful registration
     window.location.href = 'index.html';
 
   } catch (err) {
@@ -91,9 +97,19 @@ function showError(message) {
   let errorEl = document.getElementById('error-msg');
   if (errorEl) {
     errorEl.textContent = message;
+    errorEl.classList.remove('hidden');
     errorEl.style.display = 'block';
   } else {
     alert(message);
+  }
+}
+
+function hideError() {
+  let errorEl = document.getElementById('error-msg');
+  if (errorEl) {
+    errorEl.textContent = '';
+    errorEl.classList.add('hidden');
+    errorEl.style.display = 'none';
   }
 }
 
